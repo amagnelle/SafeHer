@@ -6,7 +6,7 @@ import {
   validarNome,
   validarSenha,
   validarTelefoneFormatado,
-} from "@/src/models/regex";
+} from "@/services/regex";
 import { useState } from "react";
 import {
   Button,
