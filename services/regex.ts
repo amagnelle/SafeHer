@@ -1,4 +1,3 @@
-
 //Nome contendo entre 10 e 60 caracteres
 export const validarNome =(nome: string): boolean => {
     return nome.trim().length >= 10 && nome.trim().length <= 60;
@@ -23,4 +22,3 @@ export const validarTelefoneFormatado = (telefone:string): boolean => {
     const regex = /^\d{11}$/;
     return regex.test(telefone)
 };
-
