@@ -1,5 +1,12 @@
 import { ThemedView } from "@/components/themed-view";
 import { salvarUsuario } from "@/src/models/firebase";
+import {
+  validarCPFformatado,
+  validarEmail,
+  validarNome,
+  validarSenha,
+  validarTelefoneFormatado,
+} from "@/src/services/regex";
 import { useState } from "react";
 import {
   Button,
@@ -10,7 +17,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
 export default function Cadastro() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -28,37 +34,80 @@ export default function Cadastro() {
     setModalVisible(true);
   };
 
+//Formatação do Cpf com máscara. exemplo: 000.000.000-00
+  const formataCPF = (value: string) => {
+    const numeros = value.replace(/\D/g, "");
+    if (numeros.length <= 3) {
+      return numeros;
+    } else if (numeros.length <= 6) {
+      return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
+    } else if (numeros.length <= 9) {
+      return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
+    } else {
+      return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
+    }
+  };
+
   const handleCadastro = async () => {
-    if (!nome || !email || !senha || !conSenha || !cpf || !num) {
-      showModal("Erro", "Por favor, preencha todos os campos.");
+    // Validar Nome
+    if (!nome.trim()) {
+      showModal("Erro", "Nome é obrigatório.");
+      return;
+    }
+    if (!validarNome(nome)) {
+      showModal("Erro", "Nome deve ter entre 10 e 60 caracteres.");
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (nome.length < 10 || nome.length > 60) {
-      showModal("Erro", "O nome deve conter entre 10 e 60 caracteres.");
+    // Validar Email
+    if (!email.trim()) {
+      showModal("Erro", "Email é obrigatório.");
       return;
     }
-
-    if (!emailRegex.test(email)) {
+    if (!validarEmail(email)) {
       showModal("Erro", "Email inválido.");
       return;
     }
 
-    if (senha.length < 6) {
-      showModal("Erro", "A senha deve ter pelo menos 6 caracteres.");
+    // Validar Senha
+    if (!senha.trim()) {
+      showModal("Erro", "Senha é obrigatória.");
+      return;
+    }
+    if (!validarSenha(senha)) {
+      showModal("Erro", "Senha deve ter no mínimo 6 caracteres.");
       return;
     }
 
+    // Validar Confirmar Senha
+    if (!conSenha.trim()) {
+      showModal("Erro", "Confirmação de senha é obrigatória.");
+      return;
+    }
+
+    // Validar se as senhas coincidem
     if (senha !== conSenha) {
-      showModal("Erro", "As senhas não coincidem.");
+      showModal("Erro", "Senhas não coincidem.");
       return;
     }
 
-    const cpfOnlyDigits = cpf.replace(/\D/g, "");
-    if (cpfOnlyDigits.length !== 11) {
-      showModal("Erro", "CPF deve conter 11 dígitos.");
+    // Validar CPF
+    if (!cpf.trim()) {
+      showModal("Erro", "CPF é obrigatório.");
+      return;
+    }
+    if (!validarCPFformatado(cpf)) {
+      showModal("Erro", "Digite o seu CPF.");
+      return;
+    }
+
+    // Validar Telefone
+    if (!num.trim()) {
+      showModal("Erro", "Telefone é obrigatório.");
+      return;
+    }
+    if (!validarTelefoneFormatado(num)) {
+      showModal("Erro", "Telefone inválido.");
       return;
     }
 
@@ -72,7 +121,7 @@ export default function Cadastro() {
       });
 
       showModal("Sucesso", "Cadastro realizado com sucesso!");
-    } catch (error) {
+    } catch {
       showModal("Erro", "Erro ao cadastrar usuário.");
     }
   };
@@ -113,7 +162,7 @@ export default function Cadastro() {
 
       <TextInput
         value={cpf}
-        onChangeText={setCpf}
+        onChangeText={(value) => setCpf(formataCPF(value))} //Aplicação quando o usuário digita o cpf para formatar com a máscara
         placeholder="CPF"
         keyboardType="numeric"
         style={styles.input}

@@ -1,6 +1,6 @@
-import { doc, setDoc} from "firebase/firestore";
-import { auth, db} from "./firebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "./firebaseConfig";
 
 export const salvarUsuario = async (dados: any) => {
     try {
@@ -21,6 +21,8 @@ export const salvarUsuario = async (dados: any) => {
 
         console.log("Usuário cadastrado com sucesso!");
         } catch (error: any) {
+    console.log("ERRO FIREBASE:", error);
+
     if (error.code === "auth/email-already-in-use") {
         throw new Error("Email já está em uso.");
     }
@@ -29,7 +31,5 @@ export const salvarUsuario = async (dados: any) => {
         throw new Error("Email inválido.");
     }
 
-    throw new Error("Erro ao cadastrar usuário.");
-}
-    
-};
+    throw error; // mantém o erro real
+}}
