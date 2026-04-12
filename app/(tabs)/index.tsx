@@ -1,97 +1,186 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet, Button } from 'react-native';
+import { useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useRouter } from 'expo-router';
+export default function App() {
+  const router = useRouter();
 
-export default function HomeScreen() {
-  const router = useRouter(); 
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(40)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+    <View style={styles.container}>
+      <Animated.View
+        style={[
+          styles.loginBox,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY }],
+          },
+        ]}
+      >
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("@/assets/images/icon.png")}
+            style={styles.logo}
+          />
+          <Text style={styles.brand}>SafeHer</Text>
+        </View>
 
-        <Button
-          title="Ir para Cadastro"
-          onPress={() => router.push('/cadastro')}
-        />
+        <Text style={styles.subtitle}>Bem-vinda de volta!</Text>
 
-        <HelloWave />
-      </ThemedView>
+        <View style={styles.inputGroup}>
+          <TextInput
+            placeholder="E-mail"
+            placeholderTextColor="#9CA3AF"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+          />
 
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{' '}
-          <ThemedText type="defaultSemiBold">
-            app/(tabs)/index.tsx
-          </ThemedText>{' '}
-          to see changes. Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
+          <View style={styles.divider} />
 
-      
-      <ThemedView style={styles.stepContainer}>
-        <Button
-          title="Explorar Cadastro"
-          onPress={() => router.push('/cadastro')}
-        />
+          <TextInput
+            placeholder="Senha"
+            placeholderTextColor="#9CA3AF"
+            style={styles.input}
+            secureTextEntry
+            value={senha}
+            onChangeText={setSenha}
+          />
+        </View>
 
-        <ThemedText>
-          Navegue para a tela de cadastro do app.
-        </ThemedText>
-      </ThemedView>
+        <TouchableOpacity style={styles.button} activeOpacity={0.85}>
+          <Text style={styles.buttonText}>Entrar</Text>
+        </TouchableOpacity>
 
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">
-            npm run reset-project
-          </ThemedText>{' '}
-          to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={() => router.push("/cadastro")}>
+            <Text style={styles.linkStrong}>Cadastre-se</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.link}>Esqueceu a senha?</Text>
+        </View>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  container: {
+    flex: 1,
+    backgroundColor: "#EDE9FE",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  loginBox: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#7C3AED",
+    padding: 30,
+  },
+
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 20,
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+
+  logo: {
+    padding: "40%",
+    width: 140,
+    height: 140,
+    resizeMode: "cover",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+
+  brand: {
+    color: "#FFFFFF",
+    fontSize: 30,
+    fontWeight: "bold",
+    letterSpacing: 1,
+  },
+
+  subtitle: {
+    color: "#EDE9FE",
+    textAlign: "center",
+    marginBottom: 20,
+    fontSize: 14,
+  },
+
+  inputGroup: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+
+  input: {
+    padding: 21,
+    fontSize: 18,
+    color: "#1F2937",
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: "#F3F4F6",
+  },
+
+  button: {
+    backgroundColor: "#5B21B6",
+    padding: 15,
+    borderRadius: 14,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+
+  buttonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  footer: {
+    alignItems: "center",
+    gap: 8,
+  },
+
+  link: {
+    color: "#C4B5FD",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  linkStrong: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    textDecorationLine: "underline",
   },
 });
