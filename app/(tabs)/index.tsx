@@ -1,3 +1,4 @@
+import { loginUsuario } from "@/src/models/firebase";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -16,9 +17,32 @@ export default function App() {
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-//
+  //
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(40)).current;
+
+  const handleLogin = async () => {
+    try {
+      if (!email || !senha) {
+        alert("Preencha todos os campos");
+        return;
+      }
+
+      setLoading(true);
+
+      const user = await loginUsuario(email, senha);
+
+      console.log("Logado:", user.email);
+
+      router.push("/cadastro");
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     Animated.parallel([
@@ -77,8 +101,14 @@ export default function App() {
           />
         </View>
 
-        <TouchableOpacity style={styles.button} activeOpacity={0.85}>
-          <Text style={styles.buttonText}>Entrar</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "Entrando..." : "Entrar"}
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>
