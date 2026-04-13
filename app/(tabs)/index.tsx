@@ -1,8 +1,9 @@
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -101,10 +102,12 @@ const styles = StyleSheet.create({
   },
 
   loginBox: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: "#7C3AED",
+    width: Platform.OS === "web" ? "90%" : "100%",
+    maxWidth: Platform.OS === "web" ? 400 : "100%",
+    height: Platform.OS === "web" ? "auto" : "100%",
+    backgroundColor: "#9D4EDD",
     padding: 30,
+    borderRadius: Platform.OS === "web" ? 20 : 0,
   },
 
   logoContainer: {

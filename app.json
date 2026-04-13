@@ -6,24 +6,35 @@
     "orientation": "portrait",
     "icon": "./assets/images/LOGO.png",
     "scheme": "safeher",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
+
     "ios": {
       "supportsTablet": true
     },
+
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/LOGO.png",
-        "backgroundColor": "#f2C5"
+        "foregroundImage": "@/assets/images/LOGO.png",
+        "backgroundColor": "#0B0B0F"
       }
     },
+
+    "splash": {
+      "image": "./assets/images/LOGO.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0B0F"
+    },
+
     "edgeToEdgeEnabled": true,
     "predictiveBackGestureEnabled": false
   },
+
   "web": {
     "output": "static",
     "favicon": "./assets/images/LOGO.png"
   },
+
   "plugins": [
     "expo-router",
     [
@@ -31,14 +42,15 @@
       {
         "image": "./assets/images/LOGO.png",
         "imageWidth": 200,
-        "resizeMode": "cover",
-        "backgroundColor": "#f2c5",
+        "resizeMode": "contain",
+        "backgroundColor": "#0B0B0F",
         "dark": {
           "backgroundColor": "#000000"
         }
       }
     ]
   ],
+
   "experiments": {
     "typedRoutes": true,
     "reactCompiler": true
