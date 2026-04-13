@@ -16,7 +16,7 @@ export default function App() {
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-
+//
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(40)).current;
 
