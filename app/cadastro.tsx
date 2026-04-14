@@ -1,5 +1,3 @@
-import { ThemedView } from "@/components/themed-view";
-import { salvarUsuario } from "@/src/models/firebase";
 import {
   validarCPFformatado,
   validarEmail,
@@ -7,9 +5,10 @@ import {
   validarSenha,
   validarTelefoneFormatado,
 } from "@/services/regex";
+import { salvarUsuario } from "@/src/models/firebase";
 import { useState } from "react";
 import {
-  Button,
+  ImageBackground,
   Modal,
   StyleSheet,
   Text,
@@ -17,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 export default function Cadastro() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -34,7 +34,7 @@ export default function Cadastro() {
     setModalVisible(true);
   };
 
-//Formatação do Cpf com máscara. exemplo: 000.000.000-00
+  //Formatação do Cpf com máscara. exemplo: 000.000.000-00
   const formataCPF = (value: string) => {
     const numeros = value.replace(/\D/g, "");
     if (numeros.length <= 3) {
@@ -125,62 +125,77 @@ export default function Cadastro() {
       showModal("Erro", "Erro ao cadastrar usuário.");
     }
   };
+
   return (
-    <ThemedView style={styles.container}>
-      <Text style={{ fontSize: 20, marginBottom: 10 }}>Cadastro</Text>
+    <ImageBackground
+      source={require("@/assets/images/fundo.png")}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <Text style={styles.title}>Cadastro</Text>
 
-      <TextInput
-        value={nome}
-        onChangeText={setNome}
-        placeholder="Nome Completo"
-        style={styles.input}
-      />
+        <TextInput
+          value={nome}
+          onChangeText={setNome}
+          placeholder="Nome Completo"
+          placeholderTextColor="#ccc"
+          style={styles.input}
+        />
 
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        style={styles.input}
-        keyboardType="email-address"
-      />
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          placeholderTextColor="#ccc"
+          style={styles.input}
+          keyboardType="email-address"
+        />
 
-      <TextInput
-        value={senha}
-        onChangeText={setSenha}
-        placeholder="Senha"
-        secureTextEntry
-        style={styles.input}
-      />
+        <TextInput
+          value={senha}
+          onChangeText={setSenha}
+          placeholder="Senha"
+          placeholderTextColor="#ccc"
+          secureTextEntry
+          style={styles.input}
+        />
 
-      <TextInput
-        value={conSenha}
-        onChangeText={setConSenha}
-        placeholder="Confirme sua Senha"
-        secureTextEntry
-        style={styles.input}
-      />
+        <TextInput
+          value={conSenha}
+          onChangeText={setConSenha}
+          placeholder="Confirme sua Senha"
+          placeholderTextColor="#ccc"
+          secureTextEntry
+          style={styles.input}
+        />
 
-      <TextInput
-        value={cpf}
-        onChangeText={(value) => setCpf(formataCPF(value))} //Aplicação quando o usuário digita o cpf para formatar com a máscara
-        placeholder="CPF"
-        keyboardType="numeric"
-        style={styles.input}
-      />
+        <TextInput
+          value={cpf}
+          onChangeText={(value) => setCpf(formataCPF(value))} //Aplicação quando o usuário digita o cpf para formatar com a máscara
+          placeholder="CPF"
+          placeholderTextColor="#ccc"
+          keyboardType="numeric"
+          style={styles.input}
+        />
 
-      <TextInput
-        value={num}
-        onChangeText={setNum}
-        placeholder="Número de Celular"
-        keyboardType="phone-pad"
-        style={styles.input}
-      />
+        <TextInput
+          value={num}
+          onChangeText={setNum}
+          placeholder="Número de Celular"
+          placeholderTextColor="#ccc"
+          keyboardType="phone-pad"
+          style={styles.input}
+        />
 
-      <Button title="Cadastrar" onPress={handleCadastro} />
+        <TouchableOpacity style={styles.primaryButton} onPress={handleCadastro}>
+          <Text style={styles.primaryText}>Cadastrar</Text>
+        </TouchableOpacity>
+      </View>
 
       <Modal
         visible={modalVisible}
-        animationType="slide"
+        animationType="fade"
         transparent
         onRequestClose={() => setModalVisible(false)}
       >
@@ -198,55 +213,93 @@ export default function Cadastro() {
           </View>
         </View>
       </Modal>
-    </ThemedView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    padding: 20,
   },
+
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 20,
+  },
+
   input: {
-    width: 300,
-    height: 60,
-    margin: 5,
-    borderWidth: 0.5,
-    padding: 15,
-    borderRadius: 20,
-    borderColor: "#800080",
+    width: "100%",
+    maxWidth: 350,
+    height: 55,
+    marginBottom: 10,
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    color: "#fff",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
+
+  primaryButton: {
+    backgroundColor: "#5E2CA5",
+    paddingVertical: 15,
+    paddingHorizontal: 80,
+    borderRadius: 12,
+    marginTop: 15,
+  },
+
+  primaryText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.6)",
   },
+
   modalContainer: {
     width: "80%",
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "#1E1E2E",
     borderRadius: 12,
     alignItems: "center",
   },
+
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#fff",
     marginBottom: 8,
   },
+
   modalMessage: {
     fontSize: 16,
+    color: "#ccc",
     marginBottom: 12,
     textAlign: "center",
   },
+
   modalButton: {
-    backgroundColor: "#800080",
+    backgroundColor: "#5E2CA5",
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
   },
+
   modalButtonText: {
     color: "#fff",
     fontWeight: "bold",
