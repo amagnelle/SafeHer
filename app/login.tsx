@@ -2,13 +2,13 @@ import { loginUsuario } from "@/src/models/firebase";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Animated,
+    ImageBackground,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function App() {
@@ -35,7 +35,7 @@ export default function App() {
 
       console.log("Logado:", user.email);
 
-      router.replace("/cadastro");
+      router.replace("/");
     } catch (error: any) {
       alert(error.message);
     } finally {
