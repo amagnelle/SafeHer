@@ -2,13 +2,14 @@ import { loginUsuario } from "@/src/models/firebase";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-    Animated,
-    ImageBackground,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Animated,
+  Modal,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function App() {
@@ -17,15 +18,22 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   // animações
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(40)).current;
 
+  const showModal = (message: string) => {
+    setModalMessage(message);
+    setModalVisible(true);
+  };
+
   const handleLogin = async () => {
     try {
       if (!email || !senha) {
-        alert("Preencha todos os campos");
+        showModal("Preencha todos os campos");
         return;
       }
 
@@ -37,7 +45,7 @@ export default function App() {
 
       router.replace("/");
     } catch (error: any) {
-      alert(error.message);
+      showModal(error.message);
     } finally {
       setLoading(false);
     }
@@ -59,11 +67,32 @@ export default function App() {
   }, []);
 
   return (
-    <ImageBackground
-      source={require("@/assets/images/fundo.png")}
-      style={styles.container}
-      resizeMode="cover"
-    >
+    <>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Atenção</Text>
+            <Text style={styles.modalMessage}>{modalMessage}</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <ImageBackground
+        source={require("@/assets/images/fundo.png")}
+        style={styles.container}
+        resizeMode="cover"
+      >
       <View style={styles.overlay}>
         <Animated.View
           style={[
@@ -110,6 +139,7 @@ export default function App() {
         </Animated.View>
       </View>
     </ImageBackground>
+    </>
   );
 }
 const styles = StyleSheet.create({
@@ -173,5 +203,46 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginTop: 15,
     textDecorationLine: "underline",
+  },
+
+ modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+
+  modalContainer: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "#1E1E2E",
+    borderRadius: 12,
+    alignItems: "center",
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 8,
+  },
+
+  modalMessage: {
+    fontSize: 16,
+    color: "#ccc",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+
+  modalButton: {
+    backgroundColor: "#5E2CA5",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
