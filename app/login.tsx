@@ -3,8 +3,8 @@ import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  Modal,
   ImageBackground,
+  Modal,
   StyleSheet,
   Text,
   TextInput,

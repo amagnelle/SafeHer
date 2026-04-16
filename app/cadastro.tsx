@@ -120,7 +120,7 @@ export default function Cadastro() {
         telefone: num,
       });
 
-      showModal("Sucesso", "Cadastro realizado com sucesso!");
+      showModal("Sucesso", "Cadastro realizado. Acesse seu e-mail e confirme sua conta antes de entrar.");
     } catch {
       showModal("Erro", "Erro ao cadastrar usuário.");
     }
