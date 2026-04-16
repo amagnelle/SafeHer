@@ -24,7 +24,7 @@ export default function RootLayout() {
 
         <Stack.Screen name="login" />
         <Stack.Screen name="cadastro" />
-
+        <Stack.Screen name="permissoes" />
         <Stack.Screen
           name="modal"
           options={{
