@@ -120,10 +120,17 @@ export default function Cadastro() {
         telefone: num,
       });
 
+<<<<<<< Updated upstream
       showModal("Sucesso", "Cadastro realizado com sucesso!");
     } catch {
       showModal("Erro", "Erro ao cadastrar usuário.");
     }
+=======
+      showModal("Sucesso", "Cadastro realizado. Acesse seu e-mail e confirme sua conta antes de entrar.");
+    } catch (error: any) {
+      showModal("Erro", error.message);
+}
+>>>>>>> Stashed changes
   };
   return (
     <ThemedView style={styles.container}>
