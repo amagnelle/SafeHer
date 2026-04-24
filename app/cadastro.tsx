@@ -1,5 +1,4 @@
 import { ThemedView } from "@/components/themed-view";
-import { salvarUsuario } from "@/src/models/firebase";
 import {
   validarCPFformatado,
   validarEmail,
@@ -7,6 +6,7 @@ import {
   validarSenha,
   validarTelefoneFormatado,
 } from "@/services/regex";
+import { salvarUsuario } from "@/src/models/firebase";
 import { useState } from "react";
 import {
   Button,
@@ -119,18 +119,11 @@ export default function Cadastro() {
         cpf,
         telefone: num,
       });
-
-<<<<<<< Updated upstream
-      showModal("Sucesso", "Cadastro realizado com sucesso!");
-    } catch {
-      showModal("Erro", "Erro ao cadastrar usuário.");
-    }
-=======
       showModal("Sucesso", "Cadastro realizado. Acesse seu e-mail e confirme sua conta antes de entrar.");
     } catch (error: any) {
       showModal("Erro", error.message);
 }
->>>>>>> Stashed changes
+
   };
   return (
     <ThemedView style={styles.container}>
