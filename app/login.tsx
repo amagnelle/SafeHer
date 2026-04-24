@@ -1,4 +1,4 @@
-import { loginUsuario } from "@/src/models/firebase";
+import { loginComErroTratado } from "@/services/loginerror";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -31,21 +31,31 @@ export default function App() {
   };
 
   const handleLogin = async () => {
-    try {
-      if (!email || !senha) {
-        showModal("Preencha todos os campos");
-        return;
-      }
+    if (!email || !senha) {
+      showModal("Preencha todos os campos");
+      return;
+    }
 
+    if (!email.includes("@")) {
+      showModal("Digite um e-mail válido");
+      return;
+    }
+
+    if (senha.length < 6) {
+      showModal("A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+
+    try {
       setLoading(true);
 
-      const user = await loginUsuario(email, senha);
+      const user = await loginComErroTratado(email, senha);
 
       console.log("Logado:", user.email);
 
       router.replace("/");
     } catch (error: any) {
-      showModal(error.message);
+      showModal(error?.message ?? "Erro ao fazer login");
     } finally {
       setLoading(false);
     }
