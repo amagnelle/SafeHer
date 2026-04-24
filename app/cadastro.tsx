@@ -48,6 +48,21 @@ export default function Cadastro() {
     }
   };
 
+  //formatação com máscara do telefone
+  const formatarTelefone = (valor: string): string => {
+  const numero = valor.replace(/\D/g, "").slice(0, 11);
+
+  if (numero.length <= 10) {
+    return numero
+      .replace(/^(\d{2})(\d)/g, "($1) $2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
+  } else {
+    return numero
+      .replace(/^(\d{2})(\d)/g, "($1) $2")
+      .replace(/(\d{5})(\d)/, "$1-$2");
+  }
+};
+
   const handleCadastro = async () => {
     // Validar Nome
     if (!nome.trim()) {
@@ -180,8 +195,8 @@ export default function Cadastro() {
         />
 
         <TextInput
-          value={num}
-          onChangeText={setNum}
+          value={formatarTelefone(num)}
+          onChangeText={(text) => setNum(text.replace(/\D/g, "").slice(0, 11))}
           placeholder="Número de Celular"
           placeholderTextColor="#ccc"
           keyboardType="phone-pad"
