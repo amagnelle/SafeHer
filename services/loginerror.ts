@@ -15,7 +15,7 @@ export async function loginComErroTratado(email: string, senha: string) {
 
     const code = error?.code;
 
-    // 🎯 TRATAMENTO SIMPLES E EFICAZ
+    //  Tratamento de erros específicos do Firebase
     if (code === "auth/invalid-credential") {
       throw new Error("E-mail ou senha inválidos.");
     }
