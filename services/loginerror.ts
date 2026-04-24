@@ -11,7 +11,7 @@ export async function loginComErroTratado(email: string, senha: string) {
     return userCredential.user;
 
   } catch (error: any) {
-    console.log("🔥 ERRO REAL:", error);
+  console.log("ERRO REAL:", error);
 
     const code = error?.code;
 
