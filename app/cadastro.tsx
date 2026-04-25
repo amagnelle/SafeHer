@@ -1,3 +1,4 @@
+
 import {
   validarCPFformatado,
   validarEmail,
@@ -134,11 +135,12 @@ export default function Cadastro() {
         cpf,
         telefone: num,
       });
-
       showModal("Sucesso", "Cadastro realizado. Acesse seu e-mail e confirme sua conta antes de entrar.");
-    } catch {
-      showModal("Erro", "Erro ao cadastrar usuário.");
-    }
+    } catch (error: any) {
+      showModal("Erro", error.message);
+}
+
+
   };
 
   return (
