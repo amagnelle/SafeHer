@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, FlatList, StyleSheet, Text, TextInput, View } from "react-native";
-import { Contato, buscarUsuario, listarContatos, salvarContato } from "../services/contatos";
+import { buscarUsuario, Contato, listarContatos, salvarContato } from "../services/contatos";
 
 
 
@@ -8,25 +8,25 @@ export default function App() {
   const [telefone, setTelefone] = useState("");
   const [nome, setNome] = useState("");
   const [contatos, setContatos] = useState<Contato[]>([]);
-  const buscar = async () => {
-    const telefoneLimpo = telefone.replace(/\D/g, "");
+ 
 
-    const resultado = await buscarUsuario(telefoneLimpo);
 
-    if (resultado) {
-      setNome(resultado.nome);
-    } else {
-      setNome("Não encontrado");
-    }
-  };
+    
 
   const salvar = async () => {
-    if (!nome || nome === "Não encontrado") return;
+  const telefoneLimpo = telefone.replace(/\D/g, "");
 
-    const telefoneLimpo = telefone.replace(/\D/g, "");
+  if (!telefoneLimpo) return;
 
-    await salvarContato(nome, telefoneLimpo);
-  };
+  const resultado = await buscarUsuario(telefoneLimpo);
+
+  if (!resultado) return;
+
+  await salvarContato(resultado.nome, telefoneLimpo);
+
+  setTelefone("");
+  setNome("");
+};
  useEffect(() =>{
     const unsub = listarContatos(setContatos);
     return unsub;
@@ -51,7 +51,7 @@ export default function App() {
         style={{ borderWidth: 1, marginBottom: 10 }}
       />
 
-      <Button title="Buscar" onPress={buscar} />
+      
 
       <Text style={{ marginTop: 20 }}>
         {nome}
