@@ -1,6 +1,6 @@
+import { onAuthStateChanged } from "firebase/auth";
 import { addDoc, collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
 import { auth, db, } from "../src/models/firebaseConfig";
-
 
 export const buscarUsuario = async (telefone: string) => {
   const q = query(
@@ -40,25 +40,25 @@ export const salvarContato = async (nome: string, telefone: string) => {
 };
 
 export const listarContatos = (callback: (contatos: any[]) => void) => {
-  const user = auth.currentUser;
+  return onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      callback([]);
+      return;
+    }
 
-  if (!user) {
-    callback([]);
-    return () => {};
-  }
+    const ref = collection(db, "users", user.uid, "contatos");
 
-  const ref = collection(db, "users", user.uid, "contatos");
+    const unsubscribe = onSnapshot(ref, (snapshot) => {
+      const contatos = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-  const unsubscribe = onSnapshot(ref, (snapshot) => {
-    const contatos = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+      callback(contatos);
+    });
 
-    callback(contatos);
+    return unsubscribe;
   });
-
-  return unsubscribe;
 };
 
 
