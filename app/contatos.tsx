@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { buscarUsuario, salvarContato } from "../services/contatos";
+import { useEffect, useState } from "react";
+import { Button, FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+import { Contato, buscarUsuario, listarContatos, salvarContato } from "../services/contatos";
+
+
 
 export default function App() {
   const [telefone, setTelefone] = useState("");
   const [nome, setNome] = useState("");
-
+  const [contatos, setContatos] = useState<Contato[]>([]);
   const buscar = async () => {
     const telefoneLimpo = telefone.replace(/\D/g, "");
 
@@ -25,9 +27,23 @@ export default function App() {
 
     await salvarContato(nome, telefoneLimpo);
   };
+ useEffect(() =>{
+    const unsub = listarContatos(setContatos);
+    return unsub;
+  }, []);
 
   return (
     <View style={styles.back}>
+      <FlatList
+       data={contatos}
+       keyExtractor={(item) => item.id}
+       renderItem={({ item }) => (
+         <View style={{ padding: 10 }}>
+           <Text>{item.nome}</Text>
+           <Text>{item.telefone}</Text>
+         </View>
+       )}
+     />
       <TextInput
         placeholder="Digite o telefone"
         value={telefone}
@@ -44,6 +60,7 @@ export default function App() {
       <Button title="Salvar Contato" onPress={salvar} />
     </View>
   );
+ 
 }
 
 
