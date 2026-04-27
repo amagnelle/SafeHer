@@ -215,7 +215,7 @@ export default function Cadastro() {
               onPress={() => {
                 setModalVisible(false);
 
-                // redirecinamento do usuario
+                // redirecionamento do usuario
                 if (cadastroSucesso) {
                   router.push("/login");
                 }
