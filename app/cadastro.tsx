@@ -1,4 +1,3 @@
-
 import {
   validarCPFformatado,
   validarEmail,
@@ -7,6 +6,7 @@ import {
   validarTelefoneFormatado,
 } from "@/services/regex";
 import { salvarUsuario } from "@/src/models/firebase";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   ImageBackground,
@@ -29,6 +29,9 @@ export default function Cadastro() {
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
 
+  // controle de sucesso
+  const [cadastroSucesso, setCadastroSucesso] = useState(false);
+
   const showModal = (title: string, message: string) => {
     setModalTitle(title);
     setModalMessage(message);
@@ -48,21 +51,6 @@ export default function Cadastro() {
       return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
     }
   };
-
-  //formatação com máscara do telefone
-  const formatarTelefone = (valor: string): string => {
-  const numero = valor.replace(/\D/g, "").slice(0, 11);
-
-  if (numero.length <= 10) {
-    return numero
-      .replace(/^(\d{2})(\d)/g, "($1) $2")
-      .replace(/(\d{4})(\d)/, "$1-$2");
-  } else {
-    return numero
-      .replace(/^(\d{2})(\d)/g, "($1) $2")
-      .replace(/(\d{5})(\d)/, "$1-$2");
-  }
-};
 
   const handleCadastro = async () => {
     // Validar Nome
@@ -135,12 +123,13 @@ export default function Cadastro() {
         cpf,
         telefone: num,
       });
-      showModal("Sucesso", "Cadastro realizado. Acesse seu e-mail e confirme sua conta antes de entrar.");
-    } catch (error: any) {
-      showModal("Erro", error.message);
-}
 
-
+      setCadastroSucesso(true);
+      showModal("Sucesso", "Cadastro realizado com sucesso!");
+    } catch {
+      setCadastroSucesso(false);
+      showModal("Erro", "Erro ao cadastrar usuário.");
+    }
   };
 
   return (
@@ -197,8 +186,8 @@ export default function Cadastro() {
         />
 
         <TextInput
-          value={formatarTelefone(num)}
-          onChangeText={(text) => setNum(text.replace(/\D/g, "").slice(0, 11))}
+          value={num}
+          onChangeText={setNum}
           placeholder="Número de Celular"
           placeholderTextColor="#ccc"
           keyboardType="phone-pad"
@@ -223,7 +212,14 @@ export default function Cadastro() {
 
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={() => setModalVisible(false)}
+              onPress={() => {
+                setModalVisible(false);
+
+                // redirecinamento do usuario
+                if (cadastroSucesso) {
+                  router.push("/login");
+                }
+              }}
             >
               <Text style={styles.modalButtonText}>Fechar</Text>
             </TouchableOpacity>
@@ -233,7 +229,6 @@ export default function Cadastro() {
     </ImageBackground>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
