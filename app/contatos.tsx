@@ -57,7 +57,13 @@ export default function App() {
         {nome}
       </Text>
 
-      <Button title="Salvar Contato" onPress={salvar} />
+     <Button
+  title="Salvar Contato"
+  onPress={() => {
+    console.log("clicou");
+    salvar();
+  }}
+/>
     </View>
   );
  
@@ -66,6 +72,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
     back: {
+    margin: 10,
     backgroundColor: "rgb(255, 255, 255)"
   },
 })
