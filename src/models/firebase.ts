@@ -3,7 +3,7 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../models/firebaseConfig";
 
 export const salvarUsuario = async (dados: any) => {
@@ -11,7 +11,7 @@ export const salvarUsuario = async (dados: any) => {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       dados.email,
-      dados.senha
+      dados.senha,
     );
 
     const user = userCredential.user;
@@ -31,7 +31,8 @@ export const salvarUsuario = async (dados: any) => {
 
     return {
       ok: true,
-      message: "Cadastro realizado. Verifique seu e-mail para ativação da conta.",
+      message:
+        "Cadastro realizado. Verifique seu e-mail para ativação da conta.",
     };
   } catch (error: any) {
     console.log("ERRO FIREBASE:", error);
@@ -59,7 +60,14 @@ export const loginUsuario = async (email: string, senha: string) => {
 
     await user.reload();
 
-    if (!auth.currentUser?.emailVerified) {
+    const emailVerificado = user.emailVerified === true;
+
+    await updateDoc(doc(db, "users", user.uid), {
+      emailVerificado,
+      atualizadoEm: new Date().toISOString(),
+    });
+
+    if (!emailVerificado) {
       throw new Error("Seu e-mail ainda não foi verificado.");
     }
 
