@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 // AQUI: Importando diretamente do seu arquivo contato.ts
-import { buscarUsuario, Contato, listarContatos, salvarContato } from "@/services/contatos";
+import { buscarUsuario, Contato, excluirContato, listarContatos, salvarContato } from "@/services/contatos";
 
 export default function Contatos() {
   const [contatos, setContatos] = useState<Contato[]>([]);
@@ -72,6 +72,9 @@ const abrirModalSalvar = () => {
       <View style={styles.contatoInfo}>
         <Text style={styles.contatoNome}>{item.nome}</Text>
         <Text style={styles.contatoTelefone}>{item.telefone}</Text>
+        <TouchableOpacity onPress={()=>excluirContato(item.id)}>
+          <text>❌</text>
+        </TouchableOpacity>
       </View>
     </View>
   );

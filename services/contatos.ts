@@ -1,5 +1,5 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { addDoc, collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { auth, db, } from "../src/models/firebaseConfig";
 
 
@@ -71,4 +71,12 @@ export type Contato = {
   id: string;
   nome: string;
   telefone: string;
+};
+
+export const excluirContato = async (contatoId: string) => {
+  const user = auth.currentUser;
+  if (!user) return;
+  await deleteDoc(
+    doc(db,"users",user.uid, "contatos", contatoId)
+  );
 };
