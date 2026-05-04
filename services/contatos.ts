@@ -1,22 +1,27 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { addDoc, collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { auth, db, } from "../src/models/firebaseConfig";
 
+
+
+
 export const buscarUsuario = async (telefone: string) => {
-  const q = query(
-    //Coleta da lista de usuários
-    collection(db, "users"),
-    //Lista se o telefone importado existe ou não no banco de dados
-    where("telefone", "==", telefone)
-  );
+  const ref = doc(db, "telefones", telefone);
+  const snap = await getDoc(ref);
 
-  const snapshot = await getDocs(q);
-  // condição para verificar se existe ou não se existir salva na nova tabela
-  if (snapshot.empty) {
-    return null;
-  }
+  console.log("TELEFONE SNAP:", snap.exists(), snap.data());
 
-  return snapshot.docs[0].data();
+  if (!snap.exists()) return null;
+
+  const { uid } = snap.data();
+
+  const userSnap = await getDoc(doc(db, "users", uid));
+
+  console.log("USER SNAP:", userSnap.exists(), userSnap.data());
+
+  if (!userSnap.exists()) return null;
+
+  return userSnap.data();
 };
 
 

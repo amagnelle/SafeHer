@@ -38,16 +38,22 @@ export default function Contatos() {
 const salvarContatoFinal = async () => {
   const telefoneLimpo = telefone.replace(/\D/g, "");
 
-  if (!telefoneLimpo) return;
+  if (!telefoneLimpo) {
+    showModal("Erro", "Digite um telefone");
+    return;
+  }
 
   const resultado = await buscarUsuario(telefoneLimpo);
 
-  if (!resultado) return;
+  // 👉 COLOCA AQUI
+  if (!resultado || !resultado.nome) {
+    showModal("Erro", "Usuário inválido ou sem nome");
+    return;
+  }
 
   await salvarContato(resultado.nome, telefoneLimpo);
 
   setTelefone("");
-  setNome("");
   setModalVisible(false);
 };
   const showModal = (title: string, message: string) => {
