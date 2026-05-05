@@ -1,22 +1,17 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { addDoc, collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { auth, db, } from "../src/models/firebaseConfig";
 
+
+
+
 export const buscarUsuario = async (telefone: string) => {
-  const q = query(
-    //Coleta da lista de usuários
-    collection(db, "users"),
-    //Lista se o telefone importado existe ou não no banco de dados
-    where("telefone", "==", telefone)
-  );
+  const ref = doc(db, "telefones", telefone);
+  const snap = await getDoc(ref);
 
-  const snapshot = await getDocs(q);
-  // condição para verificar se existe ou não se existir salva na nova tabela
-  if (snapshot.empty) {
-    return null;
-  }
+  if (!snap.exists()) return null;
 
-  return snapshot.docs[0].data();
+  return snap.data(); // Retorna só o que tiver em "telefones/{telefone}"
 };
 
 
@@ -60,6 +55,37 @@ export const listarContatos = (callback: (contatos: any[]) => void) => {
     return unsubscribe;
   });
 };
+
+
+
+
+export const excluirContato = async (contatoId: string) => {
+  const user = auth.currentUser;
+  if (!user) return;
+  await deleteDoc(
+    doc(db,"users",user.uid, "contatos", contatoId)
+  );
+};
+
+export const editarContato = async (contatoId: string, dados:{nome?: string;telefone?:string}) =>{
+  const user = auth.currentUser;
+
+  if(!user){
+    console.log("Usuário não autenticado");
+    return; 
+  }
+  try{
+    const ref = doc (db, "users", user.uid, "contatos", contatoId);
+    
+    await updateDoc(ref, dados);
+
+    console.log("Contato atualizado!")
+  } catch(error){
+    console.error("erro ao editar", error);
+  }
+}
+
+
 
 
 export type Contato = {

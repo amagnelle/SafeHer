@@ -5,18 +5,23 @@ import {
   Modal,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 // AQUI: Importando diretamente do seu arquivo contato.ts
-import { listarContatos, Contato } from "@/services/contato"; 
+import { buscarUsuario, Contato, editarContato, excluirContato, listarContatos, salvarContato } from "@/services/contatos";
 
 export default function Contatos() {
   const [contatos, setContatos] = useState<Contato[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [nome, setNome] = useState("");
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [excluirId, setExcluirId] = useState<string | null>(null);
 
   useEffect(() => {
     // Usando a sua função do contato.ts
@@ -30,18 +35,112 @@ export default function Contatos() {
       }
     };
   }, []);
+const salvarContatoFinal = async () => {
+  const telefoneLimpo = telefone.replace(/\D/g, "");
 
-  const showModal = (title: string, message: string) => {
-    setModalTitle(title);
-    setModalMessage(message);
-    setModalVisible(true);
-  };
+  if (!telefoneLimpo) {
+    showModal("Erro", "Digite um telefone");
+    return;
+  }
+
+  if (!nome) {
+    showModal("Erro", "Digite um nome");
+    return;
+  }
+
+  try {
+    if (editandoId) {
+      // EDITAR
+      await editarContato(editandoId, {
+        nome,
+        telefone: telefoneLimpo,
+      });
+    } else {
+      // CRIAR
+      const existe = await buscarUsuario(telefoneLimpo);
+
+      if (!existe) {
+        showModal("Erro", "Número não cadastrado");
+        return;
+      }
+
+      await salvarContato(nome, telefoneLimpo);
+    }
+
+    // reset
+    setTelefone("");
+    setNome("");
+    setEditandoId(null);
+    setExcluirId(null);
+    setModalVisible(false);
+
+  } catch (err) {
+    console.log(err);
+    showModal("Erro", "Falha ao salvar");
+  }
+};
+
+const abrirModalExcluir = (contato: Contato) => {
+  setEditandoId(null);
+
+  setExcluirId(contato.id);
+
+  setModalTitle("Excluir contato");
+  setModalMessage(`Tem certeza que deseja excluir ${contato.nome}?`);
+  setModalVisible(true);
+};
+const confirmarExclusao = async () => {
+  if (!excluirId) return;
+
+  try {
+    await excluirContato(excluirId);
+
+    setExcluirId(null);
+    setModalVisible(false);
+  } catch (err) {
+    console.log(err);
+    showModal("Erro", "Falha ao excluir");
+  }
+};
+const abrirModalEditar = (contato: Contato) => {
+  setExcluirId(null);
+
+  setNome(contato.nome);
+  setTelefone(contato.telefone);
+  setEditandoId(contato.id);
+
+  setModalTitle("Editar contato");
+  setModalMessage("Altere os dados abaixo:");
+  setModalVisible(true);
+};
+const showModal = (title: string, message: string) => {
+  setModalTitle(title);
+  setModalMessage(message);
+  setModalVisible(true);
+};
+const abrirModalSalvar = () => {
+  setEditandoId(null);
+  setExcluirId(null);
+  setNome("");
+  setTelefone("");
+
+  showModal(
+    "Confirmar salvamento",
+    "Digite os dados do contato"
+  );
+};
 
   const renderContato = ({ item }: { item: Contato }) => (
     <View style={styles.contatoCard}>
       <View style={styles.contatoInfo}>
         <Text style={styles.contatoNome}>{item.nome}</Text>
         <Text style={styles.contatoTelefone}>{item.telefone}</Text>
+        <TouchableOpacity onPress={() => abrirModalEditar(item)}>
+        <Text>✏️</Text>
+</TouchableOpacity>
+        <TouchableOpacity onPress={() => abrirModalExcluir(item)}>
+    <Text>❌</Text>
+  </TouchableOpacity>
       </View>
     </View>
   );
@@ -70,33 +169,65 @@ export default function Contatos() {
           />
         </View>
 
-        <TouchableOpacity 
-          style={styles.primaryButton} 
-          onPress={() => showModal("Info", `Você tem ${contatos.length} contatos.`)}
-        >
-          <Text style={styles.primaryText}>Ver Status</Text>
-        </TouchableOpacity>
+   <TouchableOpacity
+  style={styles.primaryButton}
+  onPress={abrirModalSalvar}
+>
+  <Text style={styles.primaryText}>Salvar Contato</Text>
+</TouchableOpacity>
       </View>
 
       <Modal
-        visible={modalVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setModalVisible(false)}
+  visible={modalVisible}
+  animationType="fade"
+  transparent
+  onRequestClose={() => setModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContainer}>
+
+      <Text style={styles.modalTitle}>{modalTitle}</Text>
+
+      <Text style={styles.modalMessage}>{modalMessage}</Text>
+
+      
+      {!excluirId && (
+  <>
+    <TextInput
+      style={styles.contatoCard}
+      placeholder="Digite o telefone"
+      value={telefone}
+      onChangeText={setTelefone}
+      keyboardType="numeric"
+    />
+
+    <TextInput
+      style={styles.contatoCard}
+      placeholder="Digite o nome"
+      value={nome}
+      onChangeText={setNome}
+    />
+  </>
+)}
+      
+      <TouchableOpacity
+        style={styles.modalButton}
+        onPress={excluirId ? confirmarExclusao : salvarContatoFinal}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>{modalTitle}</Text>
-            <Text style={styles.modalMessage}>{modalMessage}</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        <Text style={styles.modalButtonText}>Confirmar</Text>
+      </TouchableOpacity>
+
+      {/* FECHAR */}
+      <TouchableOpacity
+        style={[styles.modalButton, { marginTop: 10, backgroundColor: "#444" }]}
+        onPress={() => setModalVisible(false)}
+      >
+        <Text style={styles.modalButtonText}>Fechar</Text>
+      </TouchableOpacity>
+
+    </View>
+  </View>
+</Modal>
     </ImageBackground>
   );
 }
@@ -120,6 +251,7 @@ const styles = StyleSheet.create({
   listContainer: { flex: 1, width: "100%", maxWidth: 400 },
   listContent: { paddingBottom: 20 },
   contatoCard: {
+    color:"#fff",
     width: "100%",
     backgroundColor: "rgba(255,255,255,0.1)",
     padding: 20,
