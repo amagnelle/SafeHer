@@ -251,6 +251,7 @@ const styles = StyleSheet.create({
   listContainer: { flex: 1, width: "100%", maxWidth: 400 },
   listContent: { paddingBottom: 20 },
   contatoCard: {
+    color:"#fff",
     width: "100%",
     backgroundColor: "rgba(255,255,255,0.1)",
     padding: 20,
