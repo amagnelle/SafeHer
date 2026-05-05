@@ -1,4 +1,4 @@
-import { loginComErroTratado } from "@/services/loginerror";
+import { loginUsuario } from "@/src/models/firebase";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -49,7 +49,7 @@ export default function App() {
     try {
       setLoading(true);
 
-      const user = await loginComErroTratado(email, senha);
+      const user = await loginUsuario(email, senha);
 
       console.log("Logado:", user.email);
 
@@ -103,52 +103,52 @@ export default function App() {
         style={styles.container}
         resizeMode="cover"
       >
-      <View style={styles.overlay}>
-        <Animated.View
-          style={[
-            styles.loginBox,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY }],
-            },
-          ]}
-        >
-          <Text style={styles.title}>Entrar</Text>
-          <Text style={styles.subtitle}>Bem-vinda de volta!</Text>
-
-          <TextInput
-            placeholder="E-mail"
-            placeholderTextColor="#ccc"
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-          />
-
-          <TextInput
-            placeholder="Senha"
-            placeholderTextColor="#ccc"
-            style={styles.input}
-            secureTextEntry
-            value={senha}
-            onChangeText={setSenha}
-          />
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleLogin}
-            disabled={loading}
+        <View style={styles.overlay}>
+          <Animated.View
+            style={[
+              styles.loginBox,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY }],
+              },
+            ]}
           >
-            <Text style={styles.buttonText}>
-              {loading ? "Entrando..." : "Entrar"}
-            </Text>
-          </TouchableOpacity>
+            <Text style={styles.title}>Entrar</Text>
+            <Text style={styles.subtitle}>Bem-vinda de volta!</Text>
 
-          <TouchableOpacity onPress={() => router.push("/cadastro")}>
-            <Text style={styles.link}>Não tem conta? Criar agora</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </ImageBackground>
+            <TextInput
+              placeholder="E-mail"
+              placeholderTextColor="#ccc"
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+            />
+
+            <TextInput
+              placeholder="Senha"
+              placeholderTextColor="#ccc"
+              style={styles.input}
+              secureTextEntry
+              value={senha}
+              onChangeText={setSenha}
+            />
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              <Text style={styles.buttonText}>
+                {loading ? "Entrando..." : "Entrar"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => router.push("/cadastro")}>
+              <Text style={styles.link}>Não tem conta? Criar agora</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </ImageBackground>
     </>
   );
 }
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 
- modalOverlay: {
+  modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -224,6 +224,7 @@ const styles = StyleSheet.create({
 
   modalContainer: {
     width: "80%",
+    maxWidth: 320,
     padding: 20,
     backgroundColor: "#1E1E2E",
     borderRadius: 12,
