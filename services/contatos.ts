@@ -1,5 +1,5 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { auth, db, } from "../src/models/firebaseConfig";
 
 
@@ -57,11 +57,7 @@ export const listarContatos = (callback: (contatos: any[]) => void) => {
 };
 
 
-export type Contato = {
-  id: string;
-  nome: string;
-  telefone: string;
-};
+
 
 export const excluirContato = async (contatoId: string) => {
   const user = auth.currentUser;
@@ -69,4 +65,31 @@ export const excluirContato = async (contatoId: string) => {
   await deleteDoc(
     doc(db,"users",user.uid, "contatos", contatoId)
   );
+};
+
+export const editarContato = async (contatoId: string, dados:{nome?: string;telefone?:string}) =>{
+  const user = auth.currentUser;
+
+  if(!user){
+    console.log("Usuário não autenticado");
+    return; 
+  }
+  try{
+    const ref = doc (db, "users", user.uid, "contatos", contatoId);
+    
+    await updateDoc(ref, dados);
+
+    console.log("Contato atualizado!")
+  } catch(error){
+    console.error("erro ao editar", error);
+  }
+}
+
+
+
+
+export type Contato = {
+  id: string;
+  nome: string;
+  telefone: string;
 };

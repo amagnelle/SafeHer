@@ -20,7 +20,7 @@ export default function Contatos() {
   const [modalMessage, setModalMessage] = useState("");
   const [telefone, setTelefone] = useState("");
   const [nome, setNome] = useState("");
- 
+ const [editandoId, setEditandoId] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -61,6 +61,15 @@ const salvarContatoFinal = async () => {
   setNome("");
   setModalVisible(false);
 };
+const abrirModalEditar = (contato: Contato) => {
+  setNome(contato.nome);
+  setTelefone(contato.telefone);
+  setEditandoId(contato.id);
+
+  setModalTitle("Editar contato");
+  setModalMessage("Altere os dados abaixo:");
+  setModalVisible(true);
+};
   const showModal = (title: string, message: string) => {
     setModalTitle(title);
     setModalMessage(message);
@@ -77,6 +86,9 @@ const abrirModalSalvar = () => {
       <View style={styles.contatoInfo}>
         <Text style={styles.contatoNome}>{item.nome}</Text>
         <Text style={styles.contatoTelefone}>{item.telefone}</Text>
+        <TouchableOpacity onPress={() => abrirModalEditar(item)}>
+        <Text>✏️</Text>
+</TouchableOpacity>
         <TouchableOpacity onPress={()=>excluirContato(item.id)}>
           <text>❌</text>
         </TouchableOpacity>
