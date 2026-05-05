@@ -1,22 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  FlatList,
   ImageBackground,
   Modal,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
+// AQUI: Importando diretamente do seu arquivo contato.ts
+import { listarContatos, Contato } from "@/services/contato"; 
+
 export default function Contatos() {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [assunto, setAssunto] = useState("");
-  const [mensagem, setMensagem] = useState("");
+  const [contatos, setContatos] = useState<Contato[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
+
+  useEffect(() => {
+    // Usando a sua função do contato.ts
+    const unsubscribe = listarContatos((lista) => {
+      setContatos(lista);
+    });
+
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   const showModal = (title: string, message: string) => {
     setModalTitle(title);
@@ -24,25 +37,14 @@ export default function Contatos() {
     setModalVisible(true);
   };
 
-  const handleSendMessage = async () => {
-    if (!nome.trim() || !email.trim() || !assunto.trim() || !mensagem.trim()) {
-      showModal("Erro", "Todos os campos são obrigatórios.");
-      return;
-    }
-
-    try {
-      // Simulação de envio
-      console.log("Enviando:", { nome, email, assunto, mensagem });
-      showModal("Sucesso", "Sua mensagem foi enviada com sucesso!");
-      
-      setNome("");
-      setEmail("");
-      setAssunto("");
-      setMensagem("");
-    } catch (error) {
-      showModal("Erro", "Erro ao enviar mensagem.");
-    }
-  };
+  const renderContato = ({ item }: { item: Contato }) => (
+    <View style={styles.contatoCard}>
+      <View style={styles.contatoInfo}>
+        <Text style={styles.contatoNome}>{item.nome}</Text>
+        <Text style={styles.contatoTelefone}>{item.telefone}</Text>
+      </View>
+    </View>
+  );
 
   return (
     <ImageBackground
@@ -51,46 +53,28 @@ export default function Contatos() {
       resizeMode="cover"
     >
       <View style={styles.overlay}>
-        <Text style={styles.title}>Contatos</Text>
+        <Text style={styles.title}>Contatos Salvos</Text>
 
-        <TextInput
-          value={nome}
-          onChangeText={setNome}
-          placeholder="Nome Completo"
-          placeholderTextColor="#ccc"
-          style={styles.input}
-        />
+        <View style={styles.listContainer}>
+          <FlatList
+            data={contatos}
+            keyExtractor={(item) => item.id}
+            renderItem={renderContato}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Nenhum contato encontrado.</Text>
+              </View>
+            }
+          />
+        </View>
 
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          placeholderTextColor="#ccc"
-          style={styles.input}
-          keyboardType="email-address"
-        />
-
-        <TextInput
-          value={assunto}
-          onChangeText={setAssunto}
-          placeholder="Assunto"
-          placeholderTextColor="#ccc"
-          style={styles.input}
-        />
-
-        <TextInput
-          value={mensagem}
-          onChangeText={setMensagem}
-          placeholder="Sua Mensagem"
-          placeholderTextColor="#ccc"
-          style={[styles.input, styles.textArea]}
-          multiline
-          numberOfLines={4}
-          textAlignVertical="top"
-        />
-
-        <TouchableOpacity style={styles.primaryButton} onPress={handleSendMessage}>
-          <Text style={styles.primaryText}>Enviar Mensagem</Text>
+        <TouchableOpacity 
+          style={styles.primaryButton} 
+          onPress={() => showModal("Info", `Você tem ${contatos.length} contatos.`)}
+        >
+          <Text style={styles.primaryText}>Ver Status</Text>
         </TouchableOpacity>
       </View>
 
@@ -104,7 +88,6 @@ export default function Contatos() {
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>{modalTitle}</Text>
             <Text style={styles.modalMessage}>{modalMessage}</Text>
-
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => setModalVisible(false)}
@@ -119,64 +102,52 @@ export default function Contatos() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-
+  container: { flex: 1 },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+    paddingTop: 60,
   },
-
   title: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 20,
+    marginBottom: 30,
   },
-
-  input: {
+  listContainer: { flex: 1, width: "100%", maxWidth: 400 },
+  listContent: { paddingBottom: 20 },
+  contatoCard: {
     width: "100%",
-    maxWidth: 350,
-    height: 55,
-    marginBottom: 10,
-    borderRadius: 12,
-    paddingHorizontal: 15,
     backgroundColor: "rgba(255,255,255,0.1)",
-    color: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.2)",
   },
-
-  textArea: {
-    height: 120,
-    paddingVertical: 15,
-  },
-
+  contatoInfo: { flex: 1 },
+  contatoNome: { fontSize: 18, fontWeight: "bold", color: "#fff" },
+  contatoTelefone: { fontSize: 14, color: "#ccc", marginTop: 4 },
+  emptyContainer: { marginTop: 50, alignItems: "center" },
+  emptyText: { color: "#ccc", fontSize: 16, fontStyle: "italic" },
   primaryButton: {
     backgroundColor: "#5E2CA5",
     paddingVertical: 15,
     paddingHorizontal: 80,
     borderRadius: 12,
-    marginTop: 15,
+    marginTop: 20,
+    marginBottom: 20,
   },
-
-  primaryText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-
+  primaryText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.6)",
   },
-
   modalContainer: {
     width: "80%",
     padding: 20,
@@ -184,30 +155,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
-
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 8,
-  },
-
-  modalMessage: {
-    fontSize: 16,
-    color: "#ccc",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-
-  modalButton: {
-    backgroundColor: "#5E2CA5",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-
-  modalButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", color: "#fff", marginBottom: 8 },
+  modalMessage: { fontSize: 16, color: "#ccc", marginBottom: 12, textAlign: "center" },
+  modalButton: { backgroundColor: "#5E2CA5", paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
+  modalButtonText: { color: "#fff", fontWeight: "bold" },
 });
