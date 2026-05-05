@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 // AQUI: Importando diretamente do seu arquivo contato.ts
-import { buscarUsuario, Contato, excluirContato, listarContatos, salvarContato } from "@/services/contatos";
+import { buscarUsuario, Contato, editarContato, excluirContato, listarContatos, salvarContato } from "@/services/contatos";
 
 export default function Contatos() {
   const [contatos, setContatos] = useState<Contato[]>([]);
@@ -20,8 +20,8 @@ export default function Contatos() {
   const [modalMessage, setModalMessage] = useState("");
   const [telefone, setTelefone] = useState("");
   const [nome, setNome] = useState("");
- const [editandoId, setEditandoId] = useState<string | null>(null);
-
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [excluirId, setExcluirId] = useState<string | null>(null);
 
   useEffect(() => {
     // Usando a sua função do contato.ts
@@ -48,20 +48,63 @@ const salvarContatoFinal = async () => {
     return;
   }
 
-  const existe = await buscarUsuario(telefoneLimpo); 
+  try {
+    if (editandoId) {
+      // EDITAR
+      await editarContato(editandoId, {
+        nome,
+        telefone: telefoneLimpo,
+      });
+    } else {
+      // CRIAR
+      const existe = await buscarUsuario(telefoneLimpo);
 
-  if (!existe) {
-    showModal("Erro", "Número não cadastrado");
-    return;
+      if (!existe) {
+        showModal("Erro", "Número não cadastrado");
+        return;
+      }
+
+      await salvarContato(nome, telefoneLimpo);
+    }
+
+    // reset
+    setTelefone("");
+    setNome("");
+    setEditandoId(null);
+    setExcluirId(null);
+    setModalVisible(false);
+
+  } catch (err) {
+    console.log(err);
+    showModal("Erro", "Falha ao salvar");
   }
+};
 
-  await salvarContato(nome, telefoneLimpo); 
+const abrirModalExcluir = (contato: Contato) => {
+  setEditandoId(null);
 
-  setTelefone("");
-  setNome("");
-  setModalVisible(false);
+  setExcluirId(contato.id);
+
+  setModalTitle("Excluir contato");
+  setModalMessage(`Tem certeza que deseja excluir ${contato.nome}?`);
+  setModalVisible(true);
+};
+const confirmarExclusao = async () => {
+  if (!excluirId) return;
+
+  try {
+    await excluirContato(excluirId);
+
+    setExcluirId(null);
+    setModalVisible(false);
+  } catch (err) {
+    console.log(err);
+    showModal("Erro", "Falha ao excluir");
+  }
 };
 const abrirModalEditar = (contato: Contato) => {
+  setExcluirId(null);
+
   setNome(contato.nome);
   setTelefone(contato.telefone);
   setEditandoId(contato.id);
@@ -70,17 +113,23 @@ const abrirModalEditar = (contato: Contato) => {
   setModalMessage("Altere os dados abaixo:");
   setModalVisible(true);
 };
-  const showModal = (title: string, message: string) => {
-    setModalTitle(title);
-    setModalMessage(message);
-    setModalVisible(true);
-  };
+const showModal = (title: string, message: string) => {
+  setModalTitle(title);
+  setModalMessage(message);
+  setModalVisible(true);
+};
 const abrirModalSalvar = () => {
+  setEditandoId(null);
+  setExcluirId(null);
+  setNome("");
+  setTelefone("");
+
   showModal(
     "Confirmar salvamento",
-    `Deseja salvar o contato com o telefone ${telefone}?`
+    "Digite os dados do contato"
   );
 };
+
   const renderContato = ({ item }: { item: Contato }) => (
     <View style={styles.contatoCard}>
       <View style={styles.contatoInfo}>
@@ -89,9 +138,9 @@ const abrirModalSalvar = () => {
         <TouchableOpacity onPress={() => abrirModalEditar(item)}>
         <Text>✏️</Text>
 </TouchableOpacity>
-        <TouchableOpacity onPress={()=>excluirContato(item.id)}>
-          <text>❌</text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => abrirModalExcluir(item)}>
+    <Text>❌</Text>
+  </TouchableOpacity>
       </View>
     </View>
   );
@@ -142,23 +191,28 @@ const abrirModalSalvar = () => {
       <Text style={styles.modalMessage}>{modalMessage}</Text>
 
       
-      <TextInput style = {styles.contatoCard}
-        placeholder="Digite o telefone"
-        value={telefone}
-        onChangeText={setTelefone}
-        keyboardType="numeric"
-      />
-      
-      <TextInput style = {styles.contatoCard}
-        placeholder="Digite o nome"
-        value={nome}
-        onChangeText={setNome}
-        keyboardType="default"
-      />
+      {!excluirId && (
+  <>
+    <TextInput
+      style={styles.contatoCard}
+      placeholder="Digite o telefone"
+      value={telefone}
+      onChangeText={setTelefone}
+      keyboardType="numeric"
+    />
+
+    <TextInput
+      style={styles.contatoCard}
+      placeholder="Digite o nome"
+      value={nome}
+      onChangeText={setNome}
+    />
+  </>
+)}
       
       <TouchableOpacity
         style={styles.modalButton}
-        onPress={salvarContatoFinal}
+        onPress={excluirId ? confirmarExclusao : salvarContatoFinal}
       >
         <Text style={styles.modalButtonText}>Confirmar</Text>
       </TouchableOpacity>
