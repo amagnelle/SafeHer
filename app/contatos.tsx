@@ -43,17 +43,22 @@ const salvarContatoFinal = async () => {
     return;
   }
 
-  const resultado = await buscarUsuario(telefoneLimpo);
-
-  // 👉 COLOCA AQUI
-  if (!resultado || !resultado.nome) {
-    showModal("Erro", "Usuário inválido ou sem nome");
+  if (!nome) {
+    showModal("Erro", "Digite um nome");
     return;
   }
 
-  await salvarContato(resultado.nome, telefoneLimpo);
+  const existe = await buscarUsuario(telefoneLimpo); 
+
+  if (!existe) {
+    showModal("Erro", "Número não cadastrado");
+    return;
+  }
+
+  await salvarContato(nome, telefoneLimpo); 
 
   setTelefone("");
+  setNome("");
   setModalVisible(false);
 };
   const showModal = (title: string, message: string) => {
@@ -124,15 +129,21 @@ const abrirModalSalvar = () => {
 
       <Text style={styles.modalMessage}>{modalMessage}</Text>
 
-      {/* INPUT DO TELEFONE */}
+      
       <TextInput style = {styles.contatoCard}
         placeholder="Digite o telefone"
         value={telefone}
         onChangeText={setTelefone}
         keyboardType="numeric"
       />
-
-      {/* CONFIRMAR */}
+      
+      <TextInput style = {styles.contatoCard}
+        placeholder="Digite o nome"
+        value={nome}
+        onChangeText={setNome}
+        keyboardType="default"
+      />
+      
       <TouchableOpacity
         style={styles.modalButton}
         onPress={salvarContatoFinal}

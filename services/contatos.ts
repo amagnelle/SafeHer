@@ -9,19 +9,9 @@ export const buscarUsuario = async (telefone: string) => {
   const ref = doc(db, "telefones", telefone);
   const snap = await getDoc(ref);
 
-  console.log("TELEFONE SNAP:", snap.exists(), snap.data());
-
   if (!snap.exists()) return null;
 
-  const { uid } = snap.data();
-
-  const userSnap = await getDoc(doc(db, "users", uid));
-
-  console.log("USER SNAP:", userSnap.exists(), userSnap.data());
-
-  if (!userSnap.exists()) return null;
-
-  return userSnap.data();
+  return snap.data(); // Retorna só o que tiver em "telefones/{telefone}"
 };
 
 
