@@ -38,9 +38,10 @@ export default function Cadastro() {
     setModalVisible(true);
   };
 
-  //Formatação do Cpf com máscara. exemplo: 000.000.000-00
+  // Formatação do CPF
   const formataCPF = (value: string) => {
     const numeros = value.replace(/\D/g, "");
+
     if (numeros.length <= 3) {
       return numeros;
     } else if (numeros.length <= 6) {
@@ -48,7 +49,10 @@ export default function Cadastro() {
     } else if (numeros.length <= 9) {
       return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
     } else {
-      return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
+      return `${numeros.slice(0, 3)}.${numeros.slice(
+        3,
+        6
+      )}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
     }
   };
 
@@ -58,6 +62,7 @@ export default function Cadastro() {
       showModal("Erro", "Nome é obrigatório.");
       return;
     }
+
     if (!validarNome(nome)) {
       showModal("Erro", "Nome deve ter entre 10 e 60 caracteres.");
       return;
@@ -68,6 +73,7 @@ export default function Cadastro() {
       showModal("Erro", "Email é obrigatório.");
       return;
     }
+
     if (!validarEmail(email)) {
       showModal("Erro", "Email inválido.");
       return;
@@ -78,18 +84,18 @@ export default function Cadastro() {
       showModal("Erro", "Senha é obrigatória.");
       return;
     }
+
     if (!validarSenha(senha)) {
       showModal("Erro", "Senha deve ter no mínimo 6 caracteres.");
       return;
     }
 
-    // Validar Confirmar Senha
+    // Confirmar senha
     if (!conSenha.trim()) {
       showModal("Erro", "Confirmação de senha é obrigatória.");
       return;
     }
 
-    // Validar se as senhas coincidem
     if (senha !== conSenha) {
       showModal("Erro", "Senhas não coincidem.");
       return;
@@ -100,16 +106,18 @@ export default function Cadastro() {
       showModal("Erro", "CPF é obrigatório.");
       return;
     }
+
     if (!validarCPFformatado(cpf)) {
-      showModal("Erro", "Digite o seu CPF.");
+      showModal("Erro", "Digite um CPF válido.");
       return;
     }
 
-    // Validar Telefone
+    // Validar telefone
     if (!num.trim()) {
       showModal("Erro", "Telefone é obrigatório.");
       return;
     }
+
     if (!validarTelefoneFormatado(num)) {
       showModal("Erro", "Telefone inválido.");
       return;
@@ -125,10 +133,18 @@ export default function Cadastro() {
       });
 
       setCadastroSucesso(true);
-      showModal("Sucesso", "Cadastro realizado com sucesso!");
+
+      showModal(
+        "Sucesso",
+        "Cadastro realizado com sucesso!"
+      );
     } catch {
       setCadastroSucesso(false);
-      showModal("Erro", "Erro ao cadastrar usuário.");
+
+      showModal(
+        "Erro",
+        "Erro ao cadastrar usuário."
+      );
     }
   };
 
@@ -178,7 +194,9 @@ export default function Cadastro() {
 
         <TextInput
           value={cpf}
-          onChangeText={(value) => setCpf(formataCPF(value))} //Aplicação quando o usuário digita o cpf para formatar com a máscara
+          onChangeText={(value) =>
+            setCpf(formataCPF(value))
+          }
           placeholder="CPF"
           placeholderTextColor="#ccc"
           keyboardType="numeric"
@@ -194,11 +212,28 @@ export default function Cadastro() {
           style={styles.input}
         />
 
-        <TouchableOpacity style={styles.primaryButton} onPress={handleCadastro}>
-          <Text style={styles.primaryText}>Cadastrar</Text>
+        {/* BOTÃO CADASTRAR */}
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={handleCadastro}
+        >
+          <Text style={styles.primaryText}>
+            Cadastrar
+          </Text>
+        </TouchableOpacity>
+
+        {/* BOTÃO VOLTAR */}
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.secondaryButtonText}>
+            Voltar
+          </Text>
         </TouchableOpacity>
       </View>
 
+      {/* MODAL */}
       <Modal
         visible={modalVisible}
         animationType="fade"
@@ -207,21 +242,28 @@ export default function Cadastro() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>{modalTitle}</Text>
-            <Text style={styles.modalMessage}>{modalMessage}</Text>
+            <Text style={styles.modalTitle}>
+              {modalTitle}
+            </Text>
+
+            <Text style={styles.modalMessage}>
+              {modalMessage}
+            </Text>
 
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => {
                 setModalVisible(false);
 
-                // redirecionamento do usuario
+                // redirecionar após sucesso
                 if (cadastroSucesso) {
                   router.push("/login");
                 }
               }}
             >
-              <Text style={styles.modalButtonText}>Fechar</Text>
+              <Text style={styles.modalButtonText}>
+                Fechar
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -229,6 +271,7 @@ export default function Cadastro() {
     </ImageBackground>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -274,6 +317,18 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
+  },
+
+  secondaryButton: {
+    marginTop: 15,
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+  },
+
+  secondaryButtonText: {
+    color: "#fff",
+    fontSize: 15,
+    textDecorationLine: "underline",
   },
 
   modalOverlay: {

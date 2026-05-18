@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 export default function Welcome() {
   const router = useRouter();
 
@@ -17,8 +18,12 @@ export default function Welcome() {
     >
       <View style={styles.overlay}>
         <Text style={styles.title}>SafeHer</Text>
-        <Text style={styles.subtitle}>Sua segurança começa aqui.</Text>
 
+        <Text style={styles.subtitle}>
+          Sua segurança começa aqui.
+        </Text>
+
+        {/* BOTÃO ENTRAR */}
         <TouchableOpacity
           style={styles.primaryButton}
           onPress={() => router.push("/login")}
@@ -26,13 +31,19 @@ export default function Welcome() {
           <Text style={styles.primaryText}>Entrar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/cadastro")}>
-          <Text style={styles.secondaryText}>Criar conta</Text>
+        {/* BOTÃO CRIAR CONTA */}
+        <TouchableOpacity
+          onPress={() => router.push("/cadastro")}
+        >
+          <Text style={styles.secondaryText}>
+            Criar conta
+          </Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -40,7 +51,7 @@ const styles = StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)", //
+    backgroundColor: "rgba(0,0,0,0.3)",
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
