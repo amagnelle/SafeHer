@@ -7,12 +7,18 @@ import {
     View
 } from "react-native";
 
-import { atualizarEmail } from "../services/editar";
+import {
+    atualizarEmail,
+    atualizarSenha
+} from "../services/editar";
 
-export default function AlterarEmail() {
+export default function EditarConta() {
 
     const [novoEmail, setNovoEmail] = useState("");
-    const [senha, setSenha] = useState("");
+
+    const [senhaAtual, setSenhaAtual] = useState("");
+
+    const [novaSenha, setNovaSenha] = useState("");
 
     async function handleAtualizarEmail() {
 
@@ -20,7 +26,7 @@ export default function AlterarEmail() {
 
             await atualizarEmail(
                 novoEmail,
-                senha
+                senhaAtual
             );
 
             Alert.alert(
@@ -32,17 +38,10 @@ export default function AlterarEmail() {
 
             switch (error.code) {
 
-                case "auth/requires-recent-login":
-                    Alert.alert(
-                        "Erro",
-                        "Faça login novamente"
-                    );
-                    break;
-
                 case "auth/email-already-in-use":
                     Alert.alert(
                         "Erro",
-                        "Esse email já está em uso"
+                        "Email já está em uso"
                     );
                     break;
 
@@ -69,7 +68,49 @@ export default function AlterarEmail() {
         }
     }
 
+    async function handleAtualizarSenha() {
+
+        try {
+
+            await atualizarSenha(
+                senhaAtual,
+                novaSenha
+            );
+
+            Alert.alert(
+                "Sucesso",
+                "Senha alterada"
+            );
+
+        } catch (error: any) {
+
+            switch (error.code) {
+
+                case "auth/wrong-password":
+                    Alert.alert(
+                        "Erro",
+                        "Senha atual incorreta"
+                    );
+                    break;
+
+                case "auth/weak-password":
+                    Alert.alert(
+                        "Erro",
+                        "Senha muito fraca"
+                    );
+                    break;
+
+                default:
+                    Alert.alert(
+                        "Erro",
+                        error.message
+                    );
+            }
+        }
+    }
+
     return (
+
         <View
             style={{
                 backgroundColor:"#fff",
@@ -95,8 +136,8 @@ export default function AlterarEmail() {
 
             <TextInput
                 placeholder="Senha atual"
-                value={senha}
-                onChangeText={setSenha}
+                value={senhaAtual}
+                onChangeText={setSenhaAtual}
                 secureTextEntry
                 style={{
                     borderWidth: 1,
@@ -108,6 +149,24 @@ export default function AlterarEmail() {
             <Button
                 title="Alterar Email"
                 onPress={handleAtualizarEmail}
+            />
+
+            <TextInput
+                placeholder="Nova senha"
+                value={novaSenha}
+                onChangeText={setNovaSenha}
+                secureTextEntry
+                style={{
+                    borderWidth: 1,
+                    padding: 10,
+                    borderRadius: 8,
+                    marginTop: 20
+                }}
+            />
+
+            <Button
+                title="Alterar Senha"
+                onPress={handleAtualizarSenha}
             />
 
         </View>
