@@ -9,7 +9,8 @@ import {
 
 import {
     atualizarEmail,
-    atualizarSenha
+    atualizarSenha,
+    excluirConta,
 } from "../services/editar";
 
 export default function EditarConta() {
@@ -109,11 +110,70 @@ export default function EditarConta() {
         }
     }
 
+    async function handleExcluirConta() {
+
+        Alert.alert(
+            "Excluir conta",
+            "Tem certeza que deseja excluir sua conta?",
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel"
+                },
+
+                {
+                    text: "Excluir",
+                    style: "destructive",
+
+                    onPress: async () => {
+
+                        try {
+
+                            await excluirConta(
+                                senhaAtual
+                            );
+
+                            Alert.alert(
+                                "Sucesso",
+                                "Conta excluída"
+                            );
+
+                        } catch (error: any) {
+
+                            switch (error.code) {
+
+                                case "auth/wrong-password":
+                                    Alert.alert(
+                                        "Erro",
+                                        "Senha incorreta"
+                                    );
+                                    break;
+
+                                case "auth/requires-recent-login":
+                                    Alert.alert(
+                                        "Erro",
+                                        "Faça login novamente"
+                                    );
+                                    break;
+
+                                default:
+                                    Alert.alert(
+                                        "Erro",
+                                        error.message
+                                    );
+                            }
+                        }
+                    }
+                }
+            ]
+        );
+    }
+
     return (
 
         <View
             style={{
-                backgroundColor:"#fff",
+                backgroundColor: "#fff",
                 flex: 1,
                 justifyContent: "center",
                 padding: 20,
@@ -127,6 +187,18 @@ export default function EditarConta() {
                 onChangeText={setNovoEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
+                style={{
+                    borderWidth: 1,
+                    padding: 10,
+                    borderRadius: 8
+                }}
+            />
+
+            <TextInput
+                placeholder="Nova senha"
+                value={novaSenha}
+                onChangeText={setNovaSenha}
+                secureTextEntry
                 style={{
                     borderWidth: 1,
                     padding: 10,
@@ -151,22 +223,15 @@ export default function EditarConta() {
                 onPress={handleAtualizarEmail}
             />
 
-            <TextInput
-                placeholder="Nova senha"
-                value={novaSenha}
-                onChangeText={setNovaSenha}
-                secureTextEntry
-                style={{
-                    borderWidth: 1,
-                    padding: 10,
-                    borderRadius: 8,
-                    marginTop: 20
-                }}
-            />
-
             <Button
                 title="Alterar Senha"
                 onPress={handleAtualizarSenha}
+            />
+
+            <Button
+                title="Excluir Conta"
+                onPress={handleExcluirConta}
+                color="red"
             />
 
         </View>

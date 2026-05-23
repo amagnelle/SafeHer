@@ -1,4 +1,5 @@
 import {
+    deleteUser,
     EmailAuthProvider,
     getAuth,
     reauthenticateWithCredential,
@@ -64,4 +65,28 @@ export async function atualizarSenha(
         user,
         novaSenha
     );
+}
+export async function excluirConta(
+    senhaAtual: string
+): Promise<void> {
+
+    const user: User | null = auth.currentUser;
+
+    if (!user || !user.email) {
+        throw new Error("Usuário não autenticado");
+    }
+
+    // Reautenticação
+    const credential = EmailAuthProvider.credential(
+        user.email,
+        senhaAtual
+    );
+
+    await reauthenticateWithCredential(
+        user,
+        credential
+    );
+
+    // Exclui conta
+    await deleteUser(user);
 }
