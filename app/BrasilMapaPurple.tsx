@@ -1,16 +1,16 @@
-import { useState } from "react";
 import {
   StateData,
   calculatePercentage,
   getTotalClicks,
 } from "@/lib/brazilGeoData";
+import { Text, View } from "react-native";
+import Svg, { Circle, Rect, Text as SvgText } from "react-native-svg";
 
-interface BrazilMapPurpleProps {
+interface Props {
   states: StateData[];
   onStateClick?: (state: StateData) => void;
 }
 
-// Coordenadas dos estados (baseadas no mapa)
 const stateCoordinates: Record<string, { x: number; y: number; r: number }> = {
   RR: { x: 25, y: 10, r: 5 },
   AP: { x: 35, y: 8, r: 4 },
@@ -41,133 +41,77 @@ const stateCoordinates: Record<string, { x: number; y: number; r: number }> = {
   MT: { x: 40, y: 54, r: 6 },
 };
 
-export function BrazilMapPurple({
-  states,
-  onStateClick,
-}: BrazilMapPurpleProps) {
-  const [hoveredState, setHoveredState] = useState<string | null>(null);
-
+export function BrazilMapPurple({ states, onStateClick }: Props) {
   const totalClicks = getTotalClicks(states);
 
-  const getStateData = (code: string) =>
-    states.find((s) => s.code === code);
+  const getStateData = (code: string) => {
+    return states.find((state) => state.code === code);
+  };
 
-  const getColor = (code: string) => {
-    const state = getStateData(code);
-    if (!state) return "rgba(139, 92, 246, 0.2)";
-
-    const percentage = calculatePercentage(state.clicks, totalClicks);
-    const intensity = Math.min(percentage / 5, 1);
-
-    return `rgba(139, 92, 246, ${0.4 + intensity * 0.6})`;
+  const getOpacity = (clicks: number) => {
+    const percentage = calculatePercentage(clicks, totalClicks);
+    return Math.min(0.35 + percentage / 100, 1);
   };
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
-      {/* IMAGEM BASE - precisa estar em /public */}
-      <img
-        src="/brasil-map.png"
-        alt="Mapa do Brasil"
-        className="w-full h-full object-contain rounded-lg"
-      />
-
-      {/* SVG INTERATIVO */}
-      <svg
-        className="absolute inset-0 w-full h-full"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="xMidYMid meet"
+    <View
+      style={{
+        backgroundColor: "#1e1b4b",
+        borderRadius: 18,
+        padding: 12,
+        height: 430,
+        width: "100%",
+      }}
+    >
+      <Text
+        style={{
+          color: "#fff",
+          fontSize: 18,
+          fontWeight: "bold",
+          marginBottom: 8,
+          textAlign: "center",
+        }}
       >
+        Mapa de Cliques por Estado
+      </Text>
+
+      <Svg width="100%" height="100%" viewBox="0 0 100 100">
+        <Rect x="0" y="0" width="100" height="100" rx="4" fill="#0f172a" />
+
         {Object.entries(stateCoordinates).map(([code, coords]) => {
           const state = getStateData(code);
-          const clicks = state?.clicks || 0;
-          const percentage = calculatePercentage(clicks, totalClicks);
-          const isHovered = hoveredState === code;
+          const clicks = state?.clicks ?? 0;
+          const opacity = getOpacity(clicks);
 
           return (
-            <g key={code}>
-              {/* Glow quando passa o mouse */}
-              {isHovered && (
-                <>
-                  <circle
-                    cx={coords.x}
-                    cy={coords.y}
-                    r={coords.r + 2}
-                    fill="rgba(139, 92, 246, 0.3)"
-                  />
-                  <circle
-                    cx={coords.x}
-                    cy={coords.y}
-                    r={coords.r + 1}
-                    fill="none"
-                    stroke="#FBBF24"
-                    strokeWidth="0.5"
-                  />
-                </>
-              )}
-
-              {/* Círculo clicável */}
-              <circle
+            <Svg key={code}>
+              <Circle
                 cx={coords.x}
                 cy={coords.y}
                 r={coords.r}
-                fill={getColor(code)}
-                stroke="#60A5FA"
-                strokeWidth="0.4"
-                style={{ cursor: "pointer" }}
-                onMouseEnter={() => setHoveredState(code)}
-                onMouseLeave={() => setHoveredState(null)}
-                onClick={() => {
-                  const stateData = getStateData(code);
-                  if (stateData && onStateClick) {
-                    onStateClick(stateData);
-                  }
+                fill="#8b5cf6"
+                opacity={opacity}
+                stroke="#60a5fa"
+                strokeWidth="0.5"
+                onPress={() => {
+                  if (state) onStateClick?.(state);
                 }}
               />
 
-              {/* Código do estado */}
-              <text
+              <SvgText
                 x={coords.x}
-                y={coords.y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fill="#FFFFFF"
-                fontSize="1.4"
+                y={coords.y + 0.6}
+                fill="#ffffff"
+                fontSize="2.2"
                 fontWeight="bold"
-                style={{ pointerEvents: "none", userSelect: "none" }}
+                textAnchor="middle"
               >
                 {code}
-              </text>
-
-              {/* Tooltip */}
-              {isHovered && (
-                <g>
-                  <rect
-                    x={coords.x - 10}
-                    y={coords.y - 8}
-                    width="20"
-                    height="6"
-                    fill="#1F2937"
-                    rx="0.8"
-                    stroke="#60A5FA"
-                    strokeWidth="0.2"
-                  />
-                  <text
-                    x={coords.x}
-                    y={coords.y - 4}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fill="#FBBF24"
-                    fontSize="0.9"
-                    fontWeight="bold"
-                  >
-                    {clicks} ({percentage}%)
-                  </text>
-                </g>
-              )}
-            </g>
+              </SvgText>
+            </Svg>
           );
         })}
-      </svg>
-    </div>
+      </Svg>
+    </View>
   );
 }
