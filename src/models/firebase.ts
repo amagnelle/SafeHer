@@ -24,7 +24,9 @@ export const salvarUsuario = async (dados: any) => {
       emailVerificado: false,
       criadoEm: new Date().toISOString(),
     });
-
+    await setDoc(doc(db, "telefones", dados.telefone), {
+      uid: user.uid
+    });
     await sendEmailVerification(user);
 
     console.log("Usuário cadastrado com sucesso!");
