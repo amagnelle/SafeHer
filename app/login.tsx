@@ -99,7 +99,7 @@ export default function App() {
       </Modal>
 
       <ImageBackground
-        source={require("@/assets/images/fundo.png")}
+        source={require("@/assets/images/corSolida.png")}
         style={styles.container}
         resizeMode="cover"
       >
