@@ -53,7 +53,7 @@ export default function App() {
 
       console.log("Logado:", user.email);
 
-      router.replace("/");
+      router.replace("/botao");
     } catch (error: any) {
       showModal(error?.message ?? "Erro ao fazer login");
     } finally {
@@ -99,7 +99,7 @@ export default function App() {
       </Modal>
 
       <ImageBackground
-        source={require("@/assets/images/fundo.png")}
+        source={require("@/assets/images/corSolida.png")}
         style={styles.container}
         resizeMode="cover"
       >
