@@ -1,14 +1,12 @@
 import {
-    addDoc,
-    collection,
-    doc,
-    serverTimestamp,
-    setDoc,
-    updateDoc,
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "../src/models/firebaseConfig";
-
-
 
 type Localizacao = {
   latitude: number;

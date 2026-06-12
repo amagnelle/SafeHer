@@ -1,8 +1,8 @@
-import SOSMap from "@/components/SOSmap";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import SOSMap from "../components/SOSmap";
 
 export default function Home() {
   const router = useRouter();
