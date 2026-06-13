@@ -24,6 +24,8 @@ export default function RootLayout() {
 
         <Stack.Screen name="login" />
         <Stack.Screen name="cadastro" />
+        <Stack.Screen name="botao" />
+        <Stack.Screen name="contatos" />
 
         <Stack.Screen
           name="modal"

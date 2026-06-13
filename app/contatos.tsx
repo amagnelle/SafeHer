@@ -7,11 +7,18 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 // AQUI: Importando diretamente do seu arquivo contato.ts
-import { buscarUsuario, Contato, editarContato, excluirContato, listarContatos, salvarContato } from "@/services/contatos";
+import {
+  buscarUsuario,
+  Contato,
+  editarContato,
+  excluirContato,
+  listarContatos,
+  salvarContato,
+} from "@/services/contatos";
 
 export default function Contatos() {
   const [contatos, setContatos] = useState<Contato[]>([]);
@@ -35,100 +42,95 @@ export default function Contatos() {
       }
     };
   }, []);
-const salvarContatoFinal = async () => {
-  const telefoneLimpo = telefone.replace(/\D/g, "");
+  const salvarContatoFinal = async () => {
+    const telefoneLimpo = telefone.replace(/\D/g, "");
 
-  if (!telefoneLimpo) {
-    showModal("Erro", "Digite um telefone");
-    return;
-  }
-
-  if (!nome) {
-    showModal("Erro", "Digite um nome");
-    return;
-  }
-
-  try {
-    if (editandoId) {
-      // EDITAR
-      await editarContato(editandoId, {
-        nome,
-        telefone: telefoneLimpo,
-      });
-    } else {
-      // CRIAR
-      const existe = await buscarUsuario(telefoneLimpo);
-
-      if (!existe) {
-        showModal("Erro", "Número não cadastrado");
-        return;
-      }
-
-      await salvarContato(nome, telefoneLimpo);
+    if (!telefoneLimpo) {
+      showModal("Erro", "Digite um telefone");
+      return;
     }
 
-    // reset
-    setTelefone("");
-    setNome("");
+    if (!nome) {
+      showModal("Erro", "Digite um nome");
+      return;
+    }
+
+    try {
+      if (editandoId) {
+        // EDITAR
+        await editarContato(editandoId, {
+          nome,
+          telefone: telefoneLimpo,
+        });
+      } else {
+        const usuario = await buscarUsuario(telefoneLimpo);
+
+        if (!usuario) {
+          showModal("Erro", "Número não cadastrado");
+          return;
+        }
+
+        await salvarContato(nome, telefoneLimpo, usuario.uid);
+      }
+
+      // reset
+      setTelefone("");
+      setNome("");
+      setEditandoId(null);
+      setExcluirId(null);
+      setModalVisible(false);
+    } catch (err) {
+      console.log(err);
+      showModal("Erro", "Falha ao salvar");
+    }
+  };
+
+  const abrirModalExcluir = (contato: Contato) => {
+    setEditandoId(null);
+
+    setExcluirId(contato.id);
+
+    setModalTitle("Excluir contato");
+    setModalMessage(`Tem certeza que deseja excluir ${contato.nome}?`);
+    setModalVisible(true);
+  };
+  const confirmarExclusao = async () => {
+    if (!excluirId) return;
+
+    try {
+      await excluirContato(excluirId);
+
+      setExcluirId(null);
+      setModalVisible(false);
+    } catch (err) {
+      console.log(err);
+      showModal("Erro", "Falha ao excluir");
+    }
+  };
+  const abrirModalEditar = (contato: Contato) => {
+    setExcluirId(null);
+
+    setNome(contato.nome);
+    setTelefone(contato.telefone);
+    setEditandoId(contato.id);
+
+    setModalTitle("Editar contato");
+    setModalMessage("Altere os dados abaixo:");
+    setModalVisible(true);
+  };
+  const showModal = (title: string, message: string) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalVisible(true);
+  };
+  const abrirModalSalvar = () => {
     setEditandoId(null);
     setExcluirId(null);
-    setModalVisible(false);
+    setNome("");
+    setTelefone("");
 
-  } catch (err) {
-    console.log(err);
-    showModal("Erro", "Falha ao salvar");
-  }
-};
-
-const abrirModalExcluir = (contato: Contato) => {
-  setEditandoId(null);
-
-  setExcluirId(contato.id);
-
-  setModalTitle("Excluir contato");
-  setModalMessage(`Tem certeza que deseja excluir ${contato.nome}?`);
-  setModalVisible(true);
-};
-const confirmarExclusao = async () => {
-  if (!excluirId) return;
-
-  try {
-    await excluirContato(excluirId);
-
-    setExcluirId(null);
-    setModalVisible(false);
-  } catch (err) {
-    console.log(err);
-    showModal("Erro", "Falha ao excluir");
-  }
-};
-const abrirModalEditar = (contato: Contato) => {
-  setExcluirId(null);
-
-  setNome(contato.nome);
-  setTelefone(contato.telefone);
-  setEditandoId(contato.id);
-
-  setModalTitle("Editar contato");
-  setModalMessage("Altere os dados abaixo:");
-  setModalVisible(true);
-};
-const showModal = (title: string, message: string) => {
-  setModalTitle(title);
-  setModalMessage(message);
-  setModalVisible(true);
-};
-const abrirModalSalvar = () => {
-  setEditandoId(null);
-  setExcluirId(null);
-  setNome("");
-  setTelefone("");
-
-  showModal(
-    "Confirmar salvamento",
-    "Digite os dados do contato"
-  );
-};
+    showModal("Confirmar salvamento", "Digite os dados do contato");
+  };
 
   const renderContato = ({ item }: { item: Contato }) => (
     <View style={styles.contatoCard}>
@@ -136,11 +138,11 @@ const abrirModalSalvar = () => {
         <Text style={styles.contatoNome}>{item.nome}</Text>
         <Text style={styles.contatoTelefone}>{item.telefone}</Text>
         <TouchableOpacity onPress={() => abrirModalEditar(item)}>
-        <Text>✏️</Text>
-</TouchableOpacity>
+          <Text>✏️</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => abrirModalExcluir(item)}>
-    <Text>❌</Text>
-  </TouchableOpacity>
+          <Text>❌</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -169,65 +171,65 @@ const abrirModalSalvar = () => {
           />
         </View>
 
-   <TouchableOpacity
-  style={styles.primaryButton}
-  onPress={abrirModalSalvar}
->
-  <Text style={styles.primaryText}>Salvar Contato</Text>
-</TouchableOpacity>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={abrirModalSalvar}
+        >
+          <Text style={styles.primaryText}>Salvar Contato</Text>
+        </TouchableOpacity>
       </View>
 
       <Modal
-  visible={modalVisible}
-  animationType="fade"
-  transparent
-  onRequestClose={() => setModalVisible(false)}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContainer}>
-
-      <Text style={styles.modalTitle}>{modalTitle}</Text>
-
-      <Text style={styles.modalMessage}>{modalMessage}</Text>
-
-      
-      {!excluirId && (
-  <>
-    <TextInput
-      style={styles.contatoCard}
-      placeholder="Digite o telefone"
-      value={telefone}
-      onChangeText={setTelefone}
-      keyboardType="numeric"
-    />
-
-    <TextInput
-      style={styles.contatoCard}
-      placeholder="Digite o nome"
-      value={nome}
-      onChangeText={setNome}
-    />
-  </>
-)}
-      
-      <TouchableOpacity
-        style={styles.modalButton}
-        onPress={excluirId ? confirmarExclusao : salvarContatoFinal}
+        visible={modalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setModalVisible(false)}
       >
-        <Text style={styles.modalButtonText}>Confirmar</Text>
-      </TouchableOpacity>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{modalTitle}</Text>
 
-      {/* FECHAR */}
-      <TouchableOpacity
-        style={[styles.modalButton, { marginTop: 10, backgroundColor: "#444" }]}
-        onPress={() => setModalVisible(false)}
-      >
-        <Text style={styles.modalButtonText}>Fechar</Text>
-      </TouchableOpacity>
+            <Text style={styles.modalMessage}>{modalMessage}</Text>
 
-    </View>
-  </View>
-</Modal>
+            {!excluirId && (
+              <>
+                <TextInput
+                  style={styles.contatoCard}
+                  placeholder="Digite o telefone"
+                  value={telefone}
+                  onChangeText={setTelefone}
+                  keyboardType="numeric"
+                />
+
+                <TextInput
+                  style={styles.contatoCard}
+                  placeholder="Digite o nome"
+                  value={nome}
+                  onChangeText={setNome}
+                />
+              </>
+            )}
+
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={excluirId ? confirmarExclusao : salvarContatoFinal}
+            >
+              <Text style={styles.modalButtonText}>Confirmar</Text>
+            </TouchableOpacity>
+
+            {/* FECHAR */}
+            <TouchableOpacity
+              style={[
+                styles.modalButton,
+                { marginTop: 10, backgroundColor: "#444" },
+              ]}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 }
@@ -251,7 +253,7 @@ const styles = StyleSheet.create({
   listContainer: { flex: 1, width: "100%", maxWidth: 400 },
   listContent: { paddingBottom: 20 },
   contatoCard: {
-    color:"#fff",
+    color: "#fff",
     width: "100%",
     backgroundColor: "rgba(255,255,255,0.1)",
     padding: 20,
@@ -287,8 +289,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
-  modalTitle: { fontSize: 18, fontWeight: "bold", color: "#fff", marginBottom: 8 },
-  modalMessage: { fontSize: 16, color: "#ccc", marginBottom: 12, textAlign: "center" },
-  modalButton: { backgroundColor: "#5E2CA5", paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 8,
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: "#ccc",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  modalButton: {
+    backgroundColor: "#5E2CA5",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
   modalButtonText: { color: "#fff", fontWeight: "bold" },
 });

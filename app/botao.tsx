@@ -54,7 +54,8 @@ export default function Home() {
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists() && ativo) {
-          setNomeUsuario(userSnap.data().nome);
+          const dados = userSnap.data();
+          setNomeUsuario(dados.nome || "");
         }
       } catch (error) {
         console.log("Erro ao carregar usuário:", error);
@@ -104,12 +105,18 @@ export default function Home() {
 
       <View style={styles.cardsArea}>
         <View style={styles.grid}>
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => router.push("/contatos")}
+          >
             <Text style={styles.cardTitle}>Contatos</Text>
             <Text style={styles.cardLink}>Configurar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => router.push("/")}
+          >
             <Text style={styles.cardTitle}>Histórico</Text>
             <Text style={styles.cardLink}>Ver histórico</Text>
           </TouchableOpacity>
