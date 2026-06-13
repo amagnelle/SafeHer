@@ -1,6 +1,9 @@
 import { loginUsuario } from "@/src/models/firebase";
+import { auth } from "../src/models/firebaseConfig";
+
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
+
 import {
   Animated,
   ImageBackground,
@@ -21,9 +24,29 @@ export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  // animações
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(40)).current;
+
+  useEffect(() => {
+    if (auth.currentUser) {
+      router.replace("/botao");
+    }
+  }, []);
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const showModal = (message: string) => {
     setModalMessage(message);
@@ -53,41 +76,28 @@ export default function App() {
 
       console.log("Logado:", user.email);
 
-      router.replace("/");
+      router.replace("/botao");
     } catch (error: any) {
       showModal(error?.message ?? "Erro ao fazer login");
     } finally {
       setLoading(false);
     }
   };
-  //efeitos da animação
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
 
   return (
     <>
       <Modal
         animationType="fade"
-        transparent={true}
+        transparent
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Atenção</Text>
+
             <Text style={styles.modalMessage}>{modalMessage}</Text>
+
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => setModalVisible(false)}
@@ -114,6 +124,7 @@ export default function App() {
             ]}
           >
             <Text style={styles.title}>Entrar</Text>
+
             <Text style={styles.subtitle}>Bem-vinda de volta!</Text>
 
             <TextInput
@@ -122,6 +133,8 @@ export default function App() {
               style={styles.input}
               value={email}
               onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
 
             <TextInput
@@ -152,6 +165,7 @@ export default function App() {
     </>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

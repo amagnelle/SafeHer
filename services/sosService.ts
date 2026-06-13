@@ -1,45 +1,63 @@
-import * as Location from 'expo-location';
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { auth, db } from "../src/models/firebaseConfig";
 
-import { addDoc, collection } from "firebase/firestore";
+type Localizacao = {
+  latitude: number;
+  longitude: number;
+  accuracy?: number | null;
+};
 
-import { db } from "../src/models/firebaseConfig";
+export async function iniciarAlerta() {
+  const user = auth.currentUser;
 
-class SOSservice {
+  if (!user) {
+    throw new Error("Usuário não autenticado.");
+  }
 
-    async enviarSOS (): Promise<void> {
+  const alertaRef = await addDoc(collection(db, "alertas"), {
+    userId: user.uid,
+    status: "ativo",
+    iniciadoEm: serverTimestamp(),
+    encerradoEm: null,
+    ultimaLocalizacao: null,
+  });
 
-        const { status } =
-          await Location.requestForegroundPermissionsAsync();
-
-        if(status !== 'granted'){
-
-            throw new Error('Permissão negada')
-        }
-
-        const location =
-            await Location.getCurrentPositionAsync({});
-
-        const latitude = location.coords.latitude;
-
-        const longitude = location.coords.longitude;
-
-        await addDoc(
-
-            collection(db, 'sos_alerts'), 
-            
-            {
-             
-                latitude,
-                
-                longitude,
-
-                status: 'ativo',
-
-                createAt: new Date()
-
-            }
-        );
-    }
+  return alertaRef.id;
 }
 
-export default new SOSservice();
+export async function salvarPontoDoTrajeto(
+  alertaId: string,
+  localizacao: Localizacao,
+) {
+  const pontoRef = doc(collection(db, "alertas", alertaId, "trajeto"));
+
+  await setDoc(pontoRef, {
+    latitude: localizacao.latitude,
+    longitude: localizacao.longitude,
+    accuracy: localizacao.accuracy ?? null,
+    criadoEm: serverTimestamp(),
+  });
+
+  await updateDoc(doc(db, "alertas", alertaId), {
+    ultimaLocalizacao: {
+      latitude: localizacao.latitude,
+      longitude: localizacao.longitude,
+      accuracy: localizacao.accuracy ?? null,
+      atualizadoEm: new Date().toISOString(),
+    },
+  });
+}
+
+export async function encerrarAlerta(alertaId: string) {
+  await updateDoc(doc(db, "alertas", alertaId), {
+    status: "encerrado",
+    encerradoEm: serverTimestamp(),
+  });
+}
