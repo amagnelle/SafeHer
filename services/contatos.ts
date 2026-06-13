@@ -4,20 +4,10 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDoc,
   onSnapshot,
-  updateDoc,
+  updateDoc
 } from "firebase/firestore";
 import { auth, db } from "../src/models/firebaseConfig";
-
-export const buscarUsuario = async (telefone: string) => {
-  const ref = doc(db, "telefones", telefone);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) return null;
-
-  return snap.data(); // Retorna só o que tiver em "telefones/{telefone}"
-};
 
 export const salvarContato = async (
   nome: string,
@@ -26,18 +16,13 @@ export const salvarContato = async (
 ) => {
   const user = auth.currentUser;
 
-  if (!user) {
-    console.log("Usuário não cadastrado");
-    return;
-  }
-  //Salva o usuário na tabela contatos
-  await addDoc(collection(db, "users", user.uid, "contatos"), {
-    nome: nome,
-    telefone: telefone,
-    contatoUid: contatoUid,
-  });
+  if (!user) return;
 
-  console.log("Contato salvo!");
+  await addDoc(collection(db, "users", user.uid, "contatos"), {
+    nome,
+    telefone,
+    contatoUid,
+  });
 };
 
 export const listarContatos = (callback: (contatos: any[]) => void) => {
@@ -49,7 +34,7 @@ export const listarContatos = (callback: (contatos: any[]) => void) => {
 
     const ref = collection(db, "users", user.uid, "contatos");
 
-    const unsubscribe = onSnapshot(ref, (snapshot) => {
+    return onSnapshot(ref, (snapshot) => {
       const contatos = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -57,14 +42,13 @@ export const listarContatos = (callback: (contatos: any[]) => void) => {
 
       callback(contatos);
     });
-
-    return unsubscribe;
   });
 };
 
 export const excluirContato = async (contatoId: string) => {
   const user = auth.currentUser;
   if (!user) return;
+
   await deleteDoc(doc(db, "users", user.uid, "contatos", contatoId));
 };
 
@@ -73,22 +57,10 @@ export const editarContato = async (
   dados: { nome?: string; telefone?: string; contatoUid?: string },
 ) => {
   const user = auth.currentUser;
+  if (!user) return;
 
-  if (!user) {
-    console.log("Usuário não autenticado");
-    return;
-  }
-  try {
-    const ref = doc(db, "users", user.uid, "contatos", contatoId);
-
-    await updateDoc(ref, dados);
-
-    console.log("Contato atualizado!");
-  } catch (error) {
-    console.error("erro ao editar", error);
-  }
+  await updateDoc(doc(db, "users", user.uid, "contatos", contatoId), dados);
 };
-
 export type Contato = {
   id: string;
   nome: string;
