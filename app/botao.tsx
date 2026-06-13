@@ -86,8 +86,7 @@ export default function Home() {
             Bem-vinda ao seu espaço de segurança.
           </Text>
         </View>
-
-       
+      </View>
 
       <View style={styles.sosContainer}>
         {sosActive ? (
