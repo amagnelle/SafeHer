@@ -154,18 +154,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 
-  bell: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  bellText: {
-    fontSize: 24,
-  },
 
   sosContainer: {
     flex: 1,
