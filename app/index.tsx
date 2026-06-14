@@ -26,7 +26,7 @@ export default function Welcome() {
           <Text style={styles.primaryText}>Entrar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/cadastro")}>
+        <TouchableOpacity onPress={() => router.push("/admhome")}>
           <Text style={styles.secondaryText}>Criar conta</Text>
         </TouchableOpacity>
       </View>
