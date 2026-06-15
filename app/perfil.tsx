@@ -2,13 +2,13 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function Perfil() {
@@ -56,9 +56,7 @@ export default function Perfil() {
 
           <View style={styles.memberContainer}>
             <View style={styles.dot} />
-            <Text style={styles.memberText}>
-              Membro desde jan. 2024
-            </Text>
+            <Text style={styles.memberText}>Membro desde jan. 2024</Text>
           </View>
 
           {/* EMAIL */}
@@ -72,48 +70,30 @@ export default function Perfil() {
 
               <View style={styles.infoText}>
                 <Text style={styles.label}>E-mail</Text>
-                <Text style={styles.value}>
-                  anaclara@email.com
-                </Text>
+                <Text style={styles.value}>anaclara@email.com</Text>
               </View>
             </View>
 
-            <Feather
-              name="chevron-right"
-              size={20}
-              color="#999"
-            />
+            <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
 
           {/* TELEFONE */}
           <TouchableOpacity style={styles.infoItem}>
             <View style={styles.infoLeft}>
-              <Feather
-                name="phone"
-                size={20}
-                color="#7B2CBF"
-              />
+              <Feather name="phone" size={20} color="#7B2CBF" />
 
               <View style={styles.infoText}>
                 <Text style={styles.label}>Telefone</Text>
-                <Text style={styles.value}>
-                  (21) 99999-9999
-                </Text>
+                <Text style={styles.value}>(21) 99999-9999</Text>
               </View>
             </View>
 
-            <Feather
-              name="chevron-right"
-              size={20}
-              color="#999"
-            />
+            <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
         </View>
 
         {/* SEGURANÇA */}
-        <Text style={styles.sectionTitle}>
-          Conta e Segurança
-        </Text>
+        <Text style={styles.sectionTitle}>Conta e Segurança</Text>
 
         <View style={styles.securityCard}>
           <Opcao
@@ -154,34 +134,18 @@ function Opcao({
   return (
     <TouchableOpacity style={styles.option}>
       <View style={styles.optionLeft}>
-        <MaterialCommunityIcons
-          name={icone}
-          size={22}
-          color="#7B2CBF"
-        />
+        <MaterialCommunityIcons name={icone} size={22} color="#7B2CBF" />
 
         <View style={{ marginLeft: 12 }}>
-          <Text style={styles.optionTitle}>
-            {titulo}
-          </Text>
-          <Text style={styles.optionDescription}>
-            {descricao}
-          </Text>
+          <Text style={styles.optionTitle}>{titulo}</Text>
+          <Text style={styles.optionDescription}>{descricao}</Text>
         </View>
       </View>
 
       <View style={styles.optionRight}>
-        {status && (
-          <Text style={styles.status}>
-            {status}
-          </Text>
-        )}
+        {status && <Text style={styles.status}>{status}</Text>}
 
-        <Feather
-          name="chevron-right"
-          size={20}
-          color="#999"
-        />
+        <Feather name="chevron-right" size={20} color="#999" />
       </View>
     </TouchableOpacity>
   );
@@ -197,7 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#7B2CBF",
     paddingTop: 60,
     paddingHorizontal: 25,
-    paddingBottom: 90,
+    paddingBottom: 120,
     borderBottomLeftRadius: 35,
     borderBottomRightRadius: 35,
   },
@@ -231,7 +195,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFF",
     marginHorizontal: 18,
-    marginTop: -55,
+    marginTop: -50,
     borderRadius: 22,
     padding: 20,
     elevation: 4,
@@ -239,12 +203,12 @@ const styles = StyleSheet.create({
 
   avatarContainer: {
     alignItems: "center",
-    marginTop: -75,
+    marginTop: -65,
   },
 
   avatar: {
-    width: 120,
-    height: 120,
+    width: 90,
+    height: 90,
     borderRadius: 60,
     borderWidth: 4,
     borderColor: "#7B2CBF",

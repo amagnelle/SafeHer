@@ -29,7 +29,7 @@ export default function App() {
 
   useEffect(() => {
     if (auth.currentUser) {
-      router.replace("/botao");
+      router.replace("/perfil");
     }
   }, []);
 
@@ -76,7 +76,7 @@ export default function App() {
 
       console.log("Logado:", user.email);
 
-      router.replace("/botao");
+      router.replace("/perfil");
     } catch (error: any) {
       showModal(error?.message ?? "Erro ao fazer login");
     } finally {
