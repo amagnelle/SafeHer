@@ -1,6 +1,7 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import { doc, getDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -10,10 +11,46 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { auth, db } from "../src/models/firebaseConfig";
 
 export default function Perfil() {
   const router = useRouter();
+const [nome, setNome] = useState("");
+const [email, setEmail] = useState("");
+const [telefone, setTelefone] = useState("");
+const [criadoEm, setCriadoEm] = useState("");
 
+
+useEffect(() => {
+  const carregarUsuario = async () => {
+    try {
+      const user = auth.currentUser;
+
+      if (!user) return;
+
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const dados = docSnap.data();
+
+        setNome(dados.nome || "");
+        setEmail(dados.email || "");
+        setTelefone(dados.telefone || "");
+        setCriadoEm(dados.criadoEm || "");
+      }
+    } catch (error) {
+      console.log("Erro ao carregar perfil:", error);
+    }
+  };
+  carregarUsuario();
+}, []);
+const dataMembro = criadoEm
+  ? new Date(criadoEm).toLocaleDateString("pt-BR", {
+      month: "long",
+      year: "numeric",
+    })
+  : "";
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -52,11 +89,17 @@ export default function Perfil() {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.name}>Ana Clara Silva</Text>
+          <Text style={styles.name}>
+            {nome || "Usuário"}
+          </Text>
 
           <View style={styles.memberContainer}>
             <View style={styles.dot} />
-            <Text style={styles.memberText}>Membro desde jan. 2024</Text>
+            <Text style={styles.memberText}>
+  {dataMembro
+    ? `Membro desde ${dataMembro}`
+    : "Membro desde recentemente"}
+</Text>
           </View>
 
           {/* EMAIL */}
@@ -70,7 +113,9 @@ export default function Perfil() {
 
               <View style={styles.infoText}>
                 <Text style={styles.label}>E-mail</Text>
-                <Text style={styles.value}>anaclara@email.com</Text>
+                <Text style={styles.value}>
+                {email || "Sem e-mail"}
+              </Text>
               </View>
             </View>
 
@@ -84,7 +129,9 @@ export default function Perfil() {
 
               <View style={styles.infoText}>
                 <Text style={styles.label}>Telefone</Text>
-                <Text style={styles.value}>(21) 99999-9999</Text>
+                <Text style={styles.value}>
+                {telefone || "Sem telefone"}
+              </Text>
               </View>
             </View>
 
