@@ -19,9 +19,7 @@ export default function Welcome() {
       <View style={styles.overlay}>
         <Text style={styles.title}>SafeHer</Text>
 
-        <Text style={styles.subtitle}>
-          Sua segurança começa aqui.
-        </Text>
+        <Text style={styles.subtitle}>Sua segurança começa aqui.</Text>
 
         {/* BOTÃO ENTRAR */}
         <TouchableOpacity
@@ -34,11 +32,9 @@ export default function Welcome() {
         {/* BOTÃO CRIAR CONTA */}
         <TouchableOpacity
           style={styles.secondaryButton}
-          onPress={() => router.push("/perfil")}
+          onPress={() => router.push("/cadastro")}
         >
-          <Text style={styles.secondaryText}>
-            Criar conta
-          </Text>
+          <Text style={styles.secondaryText}>Criar conta</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
