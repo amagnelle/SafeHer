@@ -9,8 +9,12 @@ import { salvarUsuario } from "@/src/models/firebase";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
+  Image,
   ImageBackground,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -28,9 +32,10 @@ export default function Cadastro() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
-
-  // controle de sucesso
   const [cadastroSucesso, setCadastroSucesso] = useState(false);
+
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConSenha, setMostrarConSenha] = useState(false);
 
   const showModal = (title: string, message: string) => {
     setModalTitle(title);
@@ -38,9 +43,9 @@ export default function Cadastro() {
     setModalVisible(true);
   };
 
-  //Formatação do Cpf com máscara. exemplo: 000.000.000-00
   const formataCPF = (value: string) => {
     const numeros = value.replace(/\D/g, "");
+
     if (numeros.length <= 3) {
       return numeros;
     } else if (numeros.length <= 6) {
@@ -53,63 +58,61 @@ export default function Cadastro() {
   };
 
   const handleCadastro = async () => {
-    // Validar Nome
     if (!nome.trim()) {
       showModal("Erro", "Nome é obrigatório.");
       return;
     }
+
     if (!validarNome(nome)) {
       showModal("Erro", "Nome deve ter entre 10 e 60 caracteres.");
       return;
     }
 
-    // Validar Email
     if (!email.trim()) {
       showModal("Erro", "Email é obrigatório.");
       return;
     }
+
     if (!validarEmail(email)) {
       showModal("Erro", "Email inválido.");
       return;
     }
 
-    // Validar Senha
     if (!senha.trim()) {
       showModal("Erro", "Senha é obrigatória.");
       return;
     }
+
     if (!validarSenha(senha)) {
       showModal("Erro", "Senha deve ter no mínimo 6 caracteres.");
       return;
     }
 
-    // Validar Confirmar Senha
     if (!conSenha.trim()) {
       showModal("Erro", "Confirmação de senha é obrigatória.");
       return;
     }
 
-    // Validar se as senhas coincidem
     if (senha !== conSenha) {
       showModal("Erro", "Senhas não coincidem.");
       return;
     }
 
-    // Validar CPF
     if (!cpf.trim()) {
       showModal("Erro", "CPF é obrigatório.");
       return;
     }
+
     if (!validarCPFformatado(cpf)) {
       showModal("Erro", "Digite o seu CPF.");
       return;
     }
 
-    // Validar Telefone
     if (!num.trim()) {
       showModal("Erro", "Telefone é obrigatório.");
       return;
     }
+
     if (!validarTelefoneFormatado(num)) {
       showModal("Erro", "Telefone inválido.");
       return;
@@ -139,64 +142,142 @@ export default function Cadastro() {
       resizeMode="cover"
     >
       <View style={styles.overlay}>
-        <Text style={styles.title}>Cadastro</Text>
-
-        <TextInput
-          value={nome}
-          onChangeText={setNome}
-          placeholder="Nome Completo"
-          placeholderTextColor="#ccc"
-          style={styles.input}
-        />
-
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          placeholderTextColor="#ccc"
-          style={styles.input}
-          keyboardType="email-address"
-        />
-
-        <TextInput
-          value={senha}
-          onChangeText={setSenha}
-          placeholder="Senha"
-          placeholderTextColor="#ccc"
-          secureTextEntry
-          style={styles.input}
-        />
-
-        <TextInput
-          value={conSenha}
-          onChangeText={setConSenha}
-          placeholder="Confirme sua Senha"
-          placeholderTextColor="#ccc"
-          secureTextEntry
-          style={styles.input}
-        />
-
-        <TextInput
-          value={cpf}
-          onChangeText={(value) => setCpf(formataCPF(value))} //Aplicação quando o usuário digita o cpf para formatar com a máscara
-          placeholder="CPF"
-          placeholderTextColor="#ccc"
-          keyboardType="numeric"
-          style={styles.input}
-        />
-
-        <TextInput
-          value={num}
-          onChangeText={setNum}
-          placeholder="Número de Celular"
-          placeholderTextColor="#ccc"
-          keyboardType="phone-pad"
-          style={styles.input}
-        />
-
-        <TouchableOpacity style={styles.primaryButton} onPress={handleCadastro}>
-          <Text style={styles.primaryText}>Cadastrar</Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backText}>‹</Text>
         </TouchableOpacity>
+
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Image
+              source={require("@/assets/images/icon.png")}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+
+            <Text style={styles.title}>Criar sua conta</Text>
+
+            <Text style={styles.subtitle}>
+              Vamos começar a cuidar da sua segurança.
+            </Text>
+
+            <View style={styles.formCard}>
+              <TextInput
+                value={nome}
+                onChangeText={setNome}
+                placeholder="Nome completo"
+                placeholderTextColor="rgba(255,255,255,0.55)"
+                style={styles.input}
+              />
+
+              <View style={styles.inputDivider} />
+
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="E-mail"
+                placeholderTextColor="rgba(255,255,255,0.55)"
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <View style={styles.inputDivider} />
+
+              <View style={styles.passwordRow}>
+                <TextInput
+                  value={senha}
+                  onChangeText={setSenha}
+                  placeholder="Senha"
+                  placeholderTextColor="rgba(255,255,255,0.55)"
+                  secureTextEntry={!mostrarSenha}
+                  style={styles.passwordInput}
+                />
+
+                <TouchableOpacity
+                  onPress={() => setMostrarSenha(!mostrarSenha)}
+                >
+                  <Text style={styles.eyeText}>
+                    {mostrarSenha ? "Ocultar" : "Ver"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.inputDivider} />
+
+              <View style={styles.passwordRow}>
+                <TextInput
+                  value={conSenha}
+                  onChangeText={setConSenha}
+                  placeholder="Confirmar senha"
+                  placeholderTextColor="rgba(255,255,255,0.55)"
+                  secureTextEntry={!mostrarConSenha}
+                  style={styles.passwordInput}
+                />
+
+                <TouchableOpacity
+                  onPress={() => setMostrarConSenha(!mostrarConSenha)}
+                >
+                  <Text style={styles.eyeText}>
+                    {mostrarConSenha ? "Ocultar" : "Ver"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.inputDivider} />
+
+              <TextInput
+                value={cpf}
+                onChangeText={(value) => setCpf(formataCPF(value))}
+                placeholder="CPF"
+                placeholderTextColor="rgba(255,255,255,0.55)"
+                keyboardType="numeric"
+                style={styles.input}
+              />
+
+              <View style={styles.inputDivider} />
+
+              <TextInput
+                value={num}
+                onChangeText={setNum}
+                placeholder="Número de celular"
+                placeholderTextColor="rgba(255,255,255,0.55)"
+                keyboardType="phone-pad"
+                style={styles.input}
+              />
+            </View>
+
+            <TouchableOpacity style={styles.termsRow}>
+              <View style={styles.checkbox} />
+              <Text style={styles.termsText}>
+                Li e aceito os Termos de Uso e Política de Privacidade
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleCadastro}
+            >
+              <Text style={styles.primaryText}>Cadastrar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => router.push("/login")}>
+              <Text style={styles.loginText}>
+                Já tem conta? <Text style={styles.loginHighlight}>Entrar</Text>
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
 
       <Modal
@@ -215,7 +296,6 @@ export default function Cadastro() {
               onPress={() => {
                 setModalVisible(false);
 
-                // redirecionamento do usuario
                 if (cadastroSucesso) {
                   router.push("/login");
                 }
@@ -229,6 +309,7 @@ export default function Cadastro() {
     </ImageBackground>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -236,84 +317,207 @@ const styles = StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(8, 0, 24, 0.54)",
+    paddingHorizontal: 24,
+  },
+
+  keyboardView: {
+    flex: 5,
+    width: "100%",
+  },
+
+  scroll: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingTop: 74,
+    paddingBottom: 42,
+    alignItems: "center",
+  },
+
+  backButton: {
+    position: "absolute",
+    top: 58,
+    left: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.10)",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    zIndex: 2,
+  },
+
+  backText: {
+    color: "#FFFFFF",
+    fontSize: 38,
+    lineHeight: 40,
+    fontWeight: "300",
+  },
+
+  logoImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 14,
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 20,
+    fontSize: 30,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+
+  subtitle: {
+    color: "rgba(255,255,255,0.72)",
+    marginTop: 7,
+    marginBottom: 28,
+    textAlign: "center",
+    fontSize: 14,
+  },
+
+  formCard: {
+    width: "100%",
+    maxWidth: 370,
+    borderRadius: 22,
+    overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+    marginBottom: 16,
   },
 
   input: {
     width: "100%",
-    maxWidth: 350,
-    height: 55,
-    marginBottom: 10,
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    color: "#fff",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    height: 52,
+    paddingHorizontal: 20,
+    color: "#FFFFFF",
+    fontSize: 15,
+  },
+
+  inputDivider: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    marginHorizontal: 18,
+  },
+
+  passwordRow: {
+    width: "100%",
+    height: 52,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  passwordInput: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontSize: 15,
+  },
+
+  eyeText: {
+    color: "#C084FC",
+    fontSize: 13,
+    fontWeight: "800",
+  },
+
+  termsRow: {
+    width: "100%",
+    maxWidth: 370,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 18,
+  },
+
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: "#C084FC",
+    marginRight: 10,
+    marginTop: 2,
+  },
+
+  termsText: {
+    flex: 1,
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 12,
+    lineHeight: 17,
   },
 
   primaryButton: {
-    backgroundColor: "#5E2CA5",
-    paddingVertical: 15,
-    paddingHorizontal: 80,
-    borderRadius: 12,
-    marginTop: 15,
+    width: "100%",
+    maxWidth: 370,
+    height: 58,
+    borderRadius: 20,
+    backgroundColor: "#A855F7",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 18,
   },
 
   primaryText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "900",
+  },
+
+  loginText: {
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 14,
+  },
+
+  loginHighlight: {
+    color: "#FFFFFF",
+    fontWeight: "900",
   },
 
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.65)",
   },
 
   modalContainer: {
-    width: "80%",
-    padding: 20,
-    backgroundColor: "#1E1E2E",
-    borderRadius: 12,
+    width: "82%",
+    maxWidth: 330,
+    padding: 24,
+    backgroundColor: "#1E1233",
+    borderRadius: 20,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
   },
 
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 8,
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    marginBottom: 10,
   },
 
   modalMessage: {
-    fontSize: 16,
-    color: "#ccc",
-    marginBottom: 12,
+    fontSize: 15,
+    color: "rgba(255,255,255,0.72)",
+    marginBottom: 18,
     textAlign: "center",
+    lineHeight: 21,
   },
 
   modalButton: {
-    backgroundColor: "#5E2CA5",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    backgroundColor: "#A855F7",
+    paddingVertical: 12,
+    paddingHorizontal: 26,
+    borderRadius: 14,
   },
 
   modalButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#FFFFFF",
+    fontWeight: "900",
   },
 });

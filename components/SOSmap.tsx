@@ -1,13 +1,45 @@
+import { enviarNotificacaoSOS } from "@/services/notification";
 import * as Location from "expo-location";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
+
+import MapView, {
+  MapStyleElement,
+  Marker,
+  Polyline,
+  PROVIDER_GOOGLE,
+} from "react-native-maps";
 
 import {
   encerrarAlerta,
   iniciarAlerta,
   salvarPontoDoTrajeto,
 } from "@/services/sosService";
+
+const mapStyle: MapStyleElement[] = [
+  {
+    elementType: "geometry",
+    stylers: [{ color: "#d5d4d6" }],
+  },
+  {
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#fbfaff" }],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#292929" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#9d86c4" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#818099" }],
+  },
+];
 
 interface Point {
   latitude: number;
@@ -37,13 +69,16 @@ export default function SOSMap({ onEndAlert }: SOSMapProps) {
         }
 
         const novoAlertaId = await iniciarAlerta();
+
+        await enviarNotificacaoSOS(novoAlertaId);
+
         setAlertaId(novoAlertaId);
 
         subscription = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.High,
-            timeInterval: 3000,
-            distanceInterval: 5,
+            timeInterval: 1000,
+            distanceInterval: 3,
           },
           async (currentLocation) => {
             const newPoint = {
@@ -93,7 +128,14 @@ export default function SOSMap({ onEndAlert }: SOSMapProps) {
   if (!location) {
     return (
       <View style={styles.loadingBox}>
+        <View style={styles.loadingPulse}>
+          <Text style={styles.loadingIcon}>📍</Text>
+        </View>
+
         <Text style={styles.loadingText}>Ativando localização...</Text>
+        <Text style={styles.loadingSubtext}>
+          Preparando o compartilhamento em tempo real.
+        </Text>
       </View>
     );
   }
@@ -101,36 +143,60 @@ export default function SOSMap({ onEndAlert }: SOSMapProps) {
   return (
     <View style={styles.mapContainer}>
       <MapView
+        provider={PROVIDER_GOOGLE}
+        customMapStyle={mapStyle}
         style={styles.map}
+        loadingEnabled
         initialRegion={{
           latitude: location.latitude,
           longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.0025,
+          longitudeDelta: 0.0025,
         }}
         region={{
           latitude: location.latitude,
           longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.0025,
+          longitudeDelta: 0.0025,
         }}
       >
-        <Marker coordinate={location} title="Você está aqui" />
+        <Marker
+          coordinate={location}
+          title="Você está aqui"
+          anchor={{ x: 0.5, y: 0.5 }}
+        >
+          <View style={styles.userMarkerOuter}>
+            <View style={styles.userMarkerInner} />
+          </View>
+        </Marker>
 
         {route.length > 1 && (
-          <Polyline coordinates={route} strokeWidth={5} strokeColor="#7E22CE" />
+          <Polyline coordinates={route} strokeWidth={5} strokeColor="#EC4899" />
         )}
       </MapView>
 
-      <View style={styles.alertBox}>
-        <Text style={styles.alertTitle}>SOS ativo</Text>
+      <View pointerEvents="none" style={styles.mapOverlay} />
 
-        <Text style={styles.alertText}>
-          Sua localização está sendo acompanhada em tempo real.
-        </Text>
+      <View style={styles.topBadge}>
+        <View style={styles.liveDot} />
+        <Text style={styles.topBadgeText}>ALERTA SOS ATIVO</Text>
+      </View>
+
+      <View style={styles.alertBox}>
+        <View style={styles.alertHeader}>
+          <View>
+            <Text style={styles.alertTitle}>Compartilhamento ativo</Text>
+          </View>
+
+          <View style={styles.statusPill}>
+            <Text style={styles.statusPillText}>Online</Text>
+          </View>
+        </View>
+
+        <View style={styles.infoLine} />
 
         <TouchableOpacity style={styles.endButton} onPress={handleEndAlert}>
-          <Text style={styles.endButtonText}>Encerrar alerta</Text>
+          <Text style={styles.endButtonText}>Encerrar SOS</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -139,27 +205,111 @@ export default function SOSMap({ onEndAlert }: SOSMapProps) {
 
 const styles = StyleSheet.create({
   mapContainer: {
-    flex: 1,
     width: "100%",
-    borderRadius: 28,
-    overflow: "hidden",
-    marginVertical: 24,
+    height: 520,
+    borderRadius: 0,
+    overflow: "visible",
+    marginVertical: 20,
+    backgroundColor: "#423d46",
   },
 
   map: {
-    flex: 1,
+    width: "100%",
+    height: "100%",
   },
 
-  loadingBox: {
-    flex: 1,
+  mapOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(23,3,39,0.16)",
+  },
+
+  userMarkerOuter: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "rgba(236,72,153,0.30)",
     alignItems: "center",
     justifyContent: "center",
   },
 
+  userMarkerInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#EC4899",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
+
+  loadingBox: {
+    width: "100%",
+    height: 520,
+    borderRadius: 30,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.13)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    marginVertical: 20,
+  },
+
+  loadingPulse: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
+    backgroundColor: "rgba(236,72,153,0.16)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 18,
+  },
+
+  loadingIcon: {
+    fontSize: 34,
+  },
+
   loadingText: {
     color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: "900",
+  },
+
+  loadingSubtext: {
+    color: "rgba(255,255,255,0.66)",
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: "center",
+    lineHeight: 18,
+  },
+
+  topBadge: {
+    position: "absolute",
+    top: 16,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(23,3,39,0.86)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    zIndex: 2,
+  },
+
+  liveDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: "#FF1744",
+    marginRight: 8,
+  },
+
+  topBadgeText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 0.4,
   },
 
   alertBox: {
@@ -167,13 +317,20 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     bottom: 16,
-    backgroundColor: "rgba(255,255,255,0.95)",
-    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.96)",
+    borderRadius: 26,
     padding: 18,
+    zIndex: 2,
+  },
+
+  alertHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
   },
 
   alertTitle: {
-    fontSize: 22,
+    fontSize: 21,
     fontWeight: "900",
     color: "#581C87",
   },
@@ -182,19 +339,59 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 14,
     color: "#4B5563",
+    lineHeight: 19,
+    maxWidth: 230,
+  },
+
+  statusPill: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(34,197,94,0.14)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+
+  statusPillText: {
+    color: "#16A34A",
+    fontSize: 11,
+    fontWeight: "900",
+  },
+
+  infoLine: {
+    height: 1,
+    backgroundColor: "rgba(88,28,135,0.10)",
+    marginVertical: 14,
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  infoLabel: {
+    color: "#6B7280",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  infoValue: {
+    color: "#581C87",
+    fontSize: 15,
+    fontWeight: "900",
   },
 
   endButton: {
-    marginTop: 14,
+    marginTop: 16,
     backgroundColor: "#E11D48",
-    paddingVertical: 15,
-    borderRadius: 16,
+    paddingVertical: 16,
+    borderRadius: 18,
     alignItems: "center",
   },
 
   endButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: "900",
   },
 });

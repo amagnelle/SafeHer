@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 export default function Welcome() {
   const router = useRouter();
 
@@ -16,23 +17,61 @@ export default function Welcome() {
       resizeMode="cover"
     >
       <View style={styles.overlay}>
-        <Text style={styles.title}>SafeHer</Text>
-        <Text style={styles.subtitle}>Sua segurança começa aqui.</Text>
+        <View style={styles.content}>
+          <Text style={styles.brand}>SafeHer</Text>
 
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => router.push("/login")}
-        >
-          <Text style={styles.primaryText}>Entrar</Text>
-        </TouchableOpacity>
+          <Text style={styles.title}>Nunca caminhe sozinha.</Text>
 
-        <TouchableOpacity onPress={() => router.push("/cadastro")}>
-          <Text style={styles.secondaryText}>Criar conta</Text>
-        </TouchableOpacity>
+          <Text style={styles.subtitle}>
+            Proteção inteligente para você e quem importa.
+          </Text>
+
+          <View style={styles.featuresCard}>
+            <View style={styles.featureItem}>
+              <Text style={styles.featureTitle}>Alerta rápido</Text>
+              <Text style={styles.featureText}>em emergências</Text>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.featureItem}>
+              <Text style={styles.featureTitle}>Localização</Text>
+              <Text style={styles.featureText}>em tempo real</Text>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.featureItem}>
+              <Text style={styles.featureTitle}>Guardiões</Text>
+              <Text style={styles.featureText}>de confiança</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => router.push("/login")}
+          >
+            <Text style={styles.primaryText}>Entrar</Text>
+            <Text style={styles.arrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => router.push("/cadastro")}
+          >
+            <Text style={styles.secondaryText}>Criar conta</Text>
+            <Text style={styles.secondaryArrow}>›</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.footerText}>
+            Seus dados estão seguros. Privacidade em primeiro lugar.
+          </Text>
+        </View>
       </View>
     </ImageBackground>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -40,40 +79,133 @@ const styles = StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)", //
+    backgroundColor: "rgba(8, 0, 25, 0.32)",
+    paddingHorizontal: 26,
+    paddingBottom: 36,
+    justifyContent: "flex-end",
+  },
+
+  content: {
+    width: "100%",
     alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
+  },
+
+  brand: {
+    color: "#FFFFFF",
+    fontSize: 46,
+    fontWeight: "900",
+    marginBottom: 18,
   },
 
   title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#fff",
+    color: "#FFFFFF",
+    fontSize: 30,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 10,
   },
 
   subtitle: {
-    fontSize: 16,
-    color: "#E0D4F7",
-    marginBottom: 40,
+    color: "rgba(255,255,255,0.82)",
+    fontSize: 17,
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 28,
+  },
+
+  featuresCard: {
+    width: "100%",
+    flexDirection: "row",
+    backgroundColor: "rgba(255,255,255,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+    borderRadius: 24,
+    paddingVertical: 18,
+    paddingHorizontal: 10,
+    marginBottom: 26,
+  },
+
+  featureItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+
+  featureTitle: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+
+  featureText: {
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 12,
+    marginTop: 4,
+    textAlign: "center",
+  },
+
+  divider: {
+    width: 1,
+    backgroundColor: "rgba(255,255,255,0.18)",
   },
 
   primaryButton: {
-    backgroundColor: "#5E2CA5",
-    paddingVertical: 15,
-    paddingHorizontal: 80,
-    borderRadius: 12,
-    marginBottom: 15,
+    width: "100%",
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#A855F7",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
   },
 
   primaryText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
+    color: "#FFFFFF",
+    fontWeight: "900",
+    fontSize: 20,
+  },
+
+  arrow: {
+    position: "absolute",
+    right: 26,
+    color: "#FFFFFF",
+    fontSize: 34,
+    fontWeight: "300",
+  },
+
+  secondaryButton: {
+    width: "100%",
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: "#D946EF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
+    backgroundColor: "rgba(0,0,0,0.12)",
   },
 
   secondaryText: {
-    color: "#fff",
-    textDecorationLine: "underline",
+    color: "#FFFFFF",
+    fontWeight: "800",
+    fontSize: 18,
+  },
+
+  secondaryArrow: {
+    position: "absolute",
+    right: 26,
+    color: "#FFFFFF",
+    fontSize: 32,
+    fontWeight: "300",
+  },
+
+  footerText: {
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 13,
+    textAlign: "center",
+    lineHeight: 19,
+    marginBottom: 8,
   },
 });

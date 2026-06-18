@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import {
   Animated,
+  Image,
   ImageBackground,
   Modal,
   StyleSheet,
@@ -95,7 +96,6 @@ export default function App() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Atenção</Text>
-
             <Text style={styles.modalMessage}>{modalMessage}</Text>
 
             <TouchableOpacity
@@ -114,6 +114,13 @@ export default function App() {
         resizeMode="cover"
       >
         <View style={styles.overlay}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backText}>‹</Text>
+          </TouchableOpacity>
+
           <Animated.View
             style={[
               styles.loginBox,
@@ -123,31 +130,47 @@ export default function App() {
               },
             ]}
           >
-            <Text style={styles.title}>Entrar</Text>
-
-            <Text style={styles.subtitle}>Bem-vinda de volta!</Text>
-
-            <TextInput
-              placeholder="E-mail"
-              placeholderTextColor="#ccc"
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
+            <Image
+              source={require("@/assets/images/icon.png")}
+              style={styles.logoImage}
+              resizeMode="contain"
             />
 
-            <TextInput
-              placeholder="Senha"
-              placeholderTextColor="#ccc"
-              style={styles.input}
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-            />
+            <Text style={styles.title}>Bem-vinda de volta!</Text>
+
+            <Text style={styles.subtitle}>
+              Entre para acessar sua rede de proteção.
+            </Text>
+
+            <View style={styles.formCard}>
+              <TextInput
+                placeholder="E-mail"
+                placeholderTextColor="rgba(255,255,255,0.55)"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <View style={styles.inputDivider} />
+
+              <TextInput
+                placeholder="Senha"
+                placeholderTextColor="rgba(255,255,255,0.55)"
+                style={styles.input}
+                secureTextEntry
+                value={senha}
+                onChangeText={setSenha}
+              />
+            </View>
+
+            <TouchableOpacity>
+              <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.button}
+              style={[styles.button, loading && styles.buttonDisabled]}
               onPress={handleLogin}
               disabled={loading}
             >
@@ -157,7 +180,10 @@ export default function App() {
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => router.push("/cadastro")}>
-              <Text style={styles.link}>Não tem conta? Criar agora</Text>
+              <Text style={styles.link}>
+                Ainda não possui conta?{" "}
+                <Text style={styles.linkHighlight}>Criar conta</Text>
+              </Text>
             </TouchableOpacity>
           </Animated.View>
         </View>
@@ -173,101 +199,162 @@ const styles = StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(8, 0, 24, 0.54)",
+    paddingHorizontal: 28,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
   },
 
   loginBox: {
     width: "100%",
-    maxWidth: 350,
+    maxWidth: 370,
     alignItems: "center",
+    marginTop: 20,
+  },
+
+  backButton: {
+    position: "absolute",
+    top: 70,
+    left: 28,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  backText: {
+    color: "#FFFFFF",
+    fontSize: 42,
+    lineHeight: 44,
+    fontWeight: "300",
+  },
+
+  logoImage: {
+    width: 300,
+    height: 300,
+    marginBottom: 26,
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: 32,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    textAlign: "center",
+    marginBottom: 10,
   },
 
   subtitle: {
-    color: "#E0D4F7",
-    marginBottom: 20,
+    color: "rgba(255,255,255,0.74)",
+    marginBottom: 34,
+    textAlign: "center",
+    fontSize: 16,
+    lineHeight: 22,
+  },
+
+  formCard: {
+    width: "100%",
+    borderRadius: 24,
+    overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+    marginBottom: 18,
   },
 
   input: {
     width: "100%",
-    height: 55,
-    marginBottom: 10,
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    color: "#fff",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-
-  button: {
-    backgroundColor: "#5E2CA5",
-    paddingVertical: 15,
-    width: "100%",
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 10,
-  },
-
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    height: 62,
+    paddingHorizontal: 22,
+    color: "#FFFFFF",
     fontSize: 16,
   },
 
+  inputDivider: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    marginHorizontal: 18,
+  },
+
+  forgotText: {
+    color: "#C084FC",
+    fontSize: 14,
+    marginBottom: 26,
+  },
+
+  button: {
+    backgroundColor: "#A855F7",
+    height: 62,
+    width: "100%",
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
+  },
+
+  buttonDisabled: {
+    opacity: 0.7,
+  },
+
+  buttonText: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+    fontSize: 18,
+  },
+
   link: {
-    color: "#fff",
-    marginTop: 15,
-    textDecorationLine: "underline",
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 15,
+  },
+
+  linkHighlight: {
+    color: "#FFFFFF",
+    fontWeight: "900",
   },
 
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.65)",
   },
 
   modalContainer: {
-    width: "80%",
-    maxWidth: 320,
-    padding: 20,
-    backgroundColor: "#1E1E2E",
-    borderRadius: 12,
+    width: "82%",
+    maxWidth: 330,
+    padding: 24,
+    backgroundColor: "#1E1233",
+    borderRadius: 20,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
   },
 
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 8,
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    marginBottom: 10,
   },
 
   modalMessage: {
-    fontSize: 16,
-    color: "#ccc",
-    marginBottom: 12,
+    fontSize: 15,
+    color: "rgba(255,255,255,0.72)",
+    marginBottom: 18,
     textAlign: "center",
+    lineHeight: 21,
   },
 
   modalButton: {
-    backgroundColor: "#5E2CA5",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    backgroundColor: "#A855F7",
+    paddingVertical: 12,
+    paddingHorizontal: 26,
+    borderRadius: 14,
   },
 
   modalButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#FFFFFF",
+    fontWeight: "900",
   },
 });

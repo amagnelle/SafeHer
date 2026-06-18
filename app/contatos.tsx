@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   FlatList,
+  Image,
   ImageBackground,
   Modal,
   StyleSheet,
@@ -42,6 +43,7 @@ export default function Contatos() {
       }
     };
   }, []);
+
   const salvarContatoFinal = async () => {
     const telefoneLimpo = telefone.replace(/\D/g, "");
 
@@ -94,6 +96,7 @@ export default function Contatos() {
     setModalMessage(`Tem certeza que deseja excluir ${contato.nome}?`);
     setModalVisible(true);
   };
+
   const confirmarExclusao = async () => {
     if (!excluirId) return;
 
@@ -107,6 +110,7 @@ export default function Contatos() {
       showModal("Erro", "Falha ao excluir");
     }
   };
+
   const abrirModalEditar = (contato: Contato) => {
     setExcluirId(null);
 
@@ -118,30 +122,49 @@ export default function Contatos() {
     setModalMessage("Altere os dados abaixo:");
     setModalVisible(true);
   };
+
   const showModal = (title: string, message: string) => {
     setModalTitle(title);
     setModalMessage(message);
     setModalVisible(true);
   };
+
   const abrirModalSalvar = () => {
     setEditandoId(null);
     setExcluirId(null);
     setNome("");
     setTelefone("");
 
-    showModal("Confirmar salvamento", "Digite os dados do contato");
+    showModal("Novo contato", "Digite os dados do contato de segurança");
   };
 
   const renderContato = ({ item }: { item: Contato }) => (
     <View style={styles.contatoCard}>
+      <View style={styles.avatarCircle}>
+        <Text style={styles.avatarText}>
+          {item.nome.charAt(0).toUpperCase()}
+        </Text>
+      </View>
+
       <View style={styles.contatoInfo}>
         <Text style={styles.contatoNome}>{item.nome}</Text>
         <Text style={styles.contatoTelefone}>{item.telefone}</Text>
-        <TouchableOpacity onPress={() => abrirModalEditar(item)}>
-          <Text>✏️</Text>
+        <Text style={styles.contatoStatus}>Contato de confiança</Text>
+      </View>
+
+      <View style={styles.actionsArea}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => abrirModalEditar(item)}
+        >
+          <Text style={styles.actionText}>Editar</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => abrirModalExcluir(item)}>
-          <Text>❌</Text>
+
+        <TouchableOpacity
+          style={[styles.actionButton, styles.deleteAction]}
+          onPress={() => abrirModalExcluir(item)}
+        >
+          <Text style={styles.deleteText}>Excluir</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -154,7 +177,19 @@ export default function Contatos() {
       resizeMode="cover"
     >
       <View style={styles.overlay}>
-        <Text style={styles.title}>Contatos Salvos</Text>
+        <View style={styles.header}>
+          <Image
+            source={require("@/assets/images/icon.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+
+          <Text style={styles.title}>Meus Contatos</Text>
+
+          <Text style={styles.subtitle}>
+            Pessoas de confiança para receber seus alertas.
+          </Text>
+        </View>
 
         <View style={styles.listContainer}>
           <FlatList
@@ -165,7 +200,10 @@ export default function Contatos() {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Nenhum contato encontrado.</Text>
+                <Text style={styles.emptyTitle}>Nenhum contato ainda</Text>
+                <Text style={styles.emptyText}>
+                  Adicione uma pessoa de confiança para receber seus alertas.
+                </Text>
               </View>
             }
           />
@@ -175,7 +213,7 @@ export default function Contatos() {
           style={styles.primaryButton}
           onPress={abrirModalSalvar}
         >
-          <Text style={styles.primaryText}>Salvar Contato</Text>
+          <Text style={styles.primaryText}>Adicionar contato</Text>
         </TouchableOpacity>
       </View>
 
@@ -194,16 +232,18 @@ export default function Contatos() {
             {!excluirId && (
               <>
                 <TextInput
-                  style={styles.contatoCard}
+                  style={styles.modalInput}
                   placeholder="Digite o telefone"
+                  placeholderTextColor="rgba(255,255,255,0.48)"
                   value={telefone}
                   onChangeText={setTelefone}
                   keyboardType="numeric"
                 />
 
                 <TextInput
-                  style={styles.contatoCard}
+                  style={styles.modalInput}
                   placeholder="Digite o nome"
+                  placeholderTextColor="rgba(255,255,255,0.48)"
                   value={nome}
                   onChangeText={setNome}
                 />
@@ -211,21 +251,23 @@ export default function Contatos() {
             )}
 
             <TouchableOpacity
-              style={styles.modalButton}
+              style={[
+                styles.modalButton,
+                excluirId && styles.modalDeleteButton,
+              ]}
               onPress={excluirId ? confirmarExclusao : salvarContatoFinal}
             >
-              <Text style={styles.modalButtonText}>Confirmar</Text>
+              <Text style={styles.modalButtonText}>
+                {excluirId ? "Excluir" : "Confirmar"}
+              </Text>
             </TouchableOpacity>
 
             {/* FECHAR */}
             <TouchableOpacity
-              style={[
-                styles.modalButton,
-                { marginTop: 10, backgroundColor: "#444" },
-              ]}
+              style={styles.closeButton}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.modalButtonText}>Fechar</Text>
+              <Text style={styles.closeButtonText}>Fechar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -235,77 +277,255 @@ export default function Contatos() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {
+    flex: 1,
+  },
+
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(8, 0, 24, 0.62)",
+    paddingHorizontal: 24,
+    paddingTop: 64,
+    paddingBottom: 34,
+  },
+
+  header: {
+    alignItems: "center",
+    marginBottom: 26,
+  },
+
+  logoImage: {
+    width: 76,
+    height: 76,
+    marginBottom: 10,
+  },
+
+  title: {
+    fontSize: 32,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+
+  subtitle: {
+    marginTop: 8,
+    color: "rgba(255,255,255,0.72)",
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+
+  listContainer: {
+    flex: 1,
+    width: "100%",
+  },
+
+  listContent: {
+    paddingBottom: 20,
+  },
+
+  contatoCard: {
+    width: "100%",
+    minHeight: 118,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    padding: 16,
+    borderRadius: 24,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  avatarCircle: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "rgba(168,85,247,0.24)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
-    paddingTop: 60,
+    marginRight: 14,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 30,
+
+  avatarText: {
+    color: "#FFFFFF",
+    fontSize: 22,
+    fontWeight: "900",
   },
-  listContainer: { flex: 1, width: "100%", maxWidth: 400 },
-  listContent: { paddingBottom: 20 },
-  contatoCard: {
-    color: "#fff",
-    width: "100%",
-    backgroundColor: "rgba(255,255,255,0.1)",
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 12,
+
+  contatoInfo: {
+    flex: 1,
+  },
+
+  contatoNome: {
+    fontSize: 19,
+    fontWeight: "900",
+    color: "#FFFFFF",
+  },
+
+  contatoTelefone: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.72)",
+    marginTop: 4,
+  },
+
+  contatoStatus: {
+    fontSize: 12,
+    color: "#C084FC",
+    marginTop: 6,
+    fontWeight: "700",
+  },
+
+  actionsArea: {
+    alignItems: "flex-end",
+    gap: 8,
+  },
+
+  actionButton: {
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,255,255,0.12)",
   },
-  contatoInfo: { flex: 1 },
-  contatoNome: { fontSize: 18, fontWeight: "bold", color: "#fff" },
-  contatoTelefone: { fontSize: 14, color: "#ccc", marginTop: 4 },
-  emptyContainer: { marginTop: 50, alignItems: "center" },
-  emptyText: { color: "#ccc", fontSize: 16, fontStyle: "italic" },
+
+  actionText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+
+  deleteAction: {
+    backgroundColor: "rgba(225,29,72,0.12)",
+    borderColor: "rgba(225,29,72,0.24)",
+  },
+
+  deleteText: {
+    color: "#FB7185",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+
+  emptyContainer: {
+    marginTop: 70,
+    alignItems: "center",
+    paddingHorizontal: 30,
+  },
+
+  emptyTitle: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "900",
+  },
+
+  emptyText: {
+    color: "rgba(255,255,255,0.62)",
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 8,
+    lineHeight: 20,
+  },
+
   primaryButton: {
-    backgroundColor: "#5E2CA5",
-    paddingVertical: 15,
-    paddingHorizontal: 80,
-    borderRadius: 12,
-    marginTop: 20,
-    marginBottom: 20,
+    width: "100%",
+    height: 60,
+    backgroundColor: "#A855F7",
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
   },
-  primaryText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+
+  primaryText: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+    fontSize: 17,
+  },
+
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.70)",
+    paddingHorizontal: 24,
   },
+
   modalContainer: {
-    width: "80%",
-    padding: 20,
-    backgroundColor: "#1E1E2E",
-    borderRadius: 12,
+    width: "100%",
+    maxWidth: 360,
+    padding: 24,
+    backgroundColor: "#1E1233",
+    borderRadius: 24,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
   },
+
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: 22,
+    fontWeight: "900",
+    color: "#FFFFFF",
     marginBottom: 8,
-  },
-  modalMessage: {
-    fontSize: 16,
-    color: "#ccc",
-    marginBottom: 12,
     textAlign: "center",
   },
-  modalButton: {
-    backgroundColor: "#5E2CA5",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+
+  modalMessage: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.68)",
+    marginBottom: 18,
+    textAlign: "center",
+    lineHeight: 20,
   },
-  modalButtonText: { color: "#fff", fontWeight: "bold" },
+
+  modalInput: {
+    width: "100%",
+    height: 56,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.13)",
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    color: "#FFFFFF",
+    marginBottom: 12,
+  },
+
+  modalButton: {
+    width: "100%",
+    height: 54,
+    backgroundColor: "#A855F7",
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+  },
+
+  modalDeleteButton: {
+    backgroundColor: "#E11D48",
+  },
+
+  modalButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+    fontSize: 15,
+  },
+
+  closeButton: {
+    width: "100%",
+    height: 52,
+    marginTop: 10,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  closeButtonText: {
+    color: "rgba(255,255,255,0.82)",
+    fontWeight: "800",
+  },
 });

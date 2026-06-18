@@ -4,6 +4,7 @@ import {
   doc,
   serverTimestamp,
   setDoc,
+  getDoc,
   updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "../src/models/firebaseConfig";
@@ -21,8 +22,14 @@ export async function iniciarAlerta() {
     throw new Error("Usuário não autenticado.");
   }
 
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  const nomeUsuario = userSnap.exists()
+    ? userSnap.data().nome
+    : "Usuária SafeHer";
+
   const alertaRef = await addDoc(collection(db, "alertas"), {
     userId: user.uid,
+    nomeUsuario,
     status: "ativo",
     iniciadoEm: serverTimestamp(),
     encerradoEm: null,

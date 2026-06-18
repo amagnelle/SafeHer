@@ -28,6 +28,7 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="index" />
+          <Stack.Screen name="perfil" />
           <Stack.Screen name="login" />
           <Stack.Screen name="cadastro" />
           <Stack.Screen name="botao" />

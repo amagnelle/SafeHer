@@ -12,28 +12,46 @@ export const NotificationContext = createContext<NotificationContextType>(
 
 export const NotificationProvider = ({ children }: any) => {
   useEffect(() => {
+    let unsubscribeSnapshot: (() => void) | undefined;
+
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      console.log("Usuário autenticado:", user?.uid);
+
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+      }
+
       if (!user) return;
 
       const notifRef = collection(db, "users", user.uid, "notificacoes");
-
       const q = query(notifRef, orderBy("criadaEm", "desc"));
 
-      // listener em tempo real
-      const unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+      console.log(`Escutando users/${user.uid}/notificacoes`);
+
+      unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+        console.log("Snapshot recebido:", snapshot.size);
+
         snapshot.docChanges().forEach((change) => {
+          console.log("Tipo da mudança:", change.type);
+
           if (change.type === "added") {
             const data = change.doc.data();
+
+            console.log("Nova notificação:", data);
 
             Alert.alert(data.titulo || "Nova notificação", data.mensagem || "");
           }
         });
       });
-
-      return () => unsubscribeSnapshot();
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      unsubscribeAuth();
+
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+      }
+    };
   }, []);
 
   return (

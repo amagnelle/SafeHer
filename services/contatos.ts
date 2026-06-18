@@ -4,11 +4,27 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "../src/models/firebaseConfig";
 
+export const buscarUsuario = async (telefone: string) => {
+  const ref = doc(db, "telefones", telefone);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    return null;
+  }
+
+  const data = snap.data();
+
+  return {
+    uid: data.uid,
+    telefone: data.telefone,
+  };
+};
 export const salvarContato = async (
   nome: string,
   telefone: string,
