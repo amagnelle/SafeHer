@@ -36,47 +36,58 @@ export default function Perfil() {
   const [modalSenha, setModalSenha] = useState(false);
 
   async function handleAtualizarEmail() {
-  // Validação simples antes de enviar
+  // 1. Validação simples antes de enviar
   if (!novoEmail || !senhaAtual) {
     Alert.alert("Erro", "Por favor, preencha todos os campos.");
     return;
   }
 
+  // 2. Evitar enviar o mesmo e-mail que já está na tela
+  if (novoEmail.trim().toLowerCase() === email.trim().toLowerCase()) {
+    Alert.alert("Aviso", "O novo e-mail precisa ser diferente do e-mail atual.");
+    return;
+  }
+
   try {
+    console.log("Tentando atualizar e-mail para:", novoEmail);
     await atualizarEmail(novoEmail, senhaAtual);
 
-    // 1. Atualiza o estado local para refletir o novo e-mail na tela imediatamente
-    // (Use isso se o seu serviço altera o e-mail na hora com updateEmail)
+    // Se chegou aqui, deu certo!
     setEmail(novoEmail); 
-
-    // 2. Limpa os campos de input do modal para a próxima vez
     setNovoEmail("");
     setSenhaAtual("");
-
-    // 3. Fecha o modal
     setModalEmail(false);
 
-    Alert.alert(
-      "Sucesso", 
-      "E-mail atualizado com sucesso! (Se configurou verificação, cheque a nova caixa de entrada)."
-    );
+    // No ambiente Web, o alert nativo funciona melhor como fallback:
+    if (typeof window !== "undefined") {
+      alert("E-mail atualizado com sucesso!");
+    } else {
+      Alert.alert("Sucesso", "E-mail atualizado com sucesso!");
+    }
 
   } catch (error: any) {
+    // ESSA LINHA É CRUCIAL: Se o botão "não fizer nada", abra o console do seu navegador (F12) 
+    // ou o terminal do VS Code. O erro real vai aparecer printado lá!
+    console.error("Erro capturado no componente Perfil:", error);
+
+    // Fallback para exibir o erro no navegador (localhost) se o Alert falhar
+    const mensagemErro = error.message || "Erro desconhecido";
+    
     switch (error.code) {
       case "auth/email-already-in-use":
-        Alert.alert("Erro", "Este e-mail já está em uso por outra conta.");
+        alert("Erro: Este e-mail já está em uso por outra conta.");
         break;
       case "auth/invalid-email":
-        Alert.alert("Erro", "O formato do e-mail digitado é inválido.");
+        alert("Erro: O formato do e-mail digitado é inválido.");
         break;
       case "auth/wrong-password":
-        Alert.alert("Erro", "A senha atual digitada está incorreta.");
+        alert("Erro: A senha atual digitada está incorreta.");
         break;
       case "auth/requires-recent-login":
-        Alert.alert("Erro", "Por segurança, faça login novamente antes de alterar o e-mail.");
+        alert("Erro: Por segurança, faça login novamente antes de alterar o e-mail.");
         break;
       default:
-        Alert.alert("Erro", error.message);
+        alert("Erro: " + mensagemErro);
     }
   }
 }
