@@ -304,8 +304,4 @@ const firebaseConfig = {
 
 ---
 
-## Autor
-
-Desenvolvido por Alexssander TnS.
-
 Projeto SafeHer — Tecnologia aplicada à segurança pessoal.
