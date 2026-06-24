@@ -10,18 +10,12 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 
-import { NotificationProvider } from "@/src/contexts/notificationContext";
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      
-     
-      <NotificationProvider>
-
-        <Stack
+      <Stack
           screenOptions={{
             headerShown: false,
             animation: "fade",
@@ -33,6 +27,9 @@ export default function RootLayout() {
           <Stack.Screen name="cadastro" />
           <Stack.Screen name="botao" />
           <Stack.Screen name="contatos" />
+          <Stack.Screen name="notificacoes" />
+          <Stack.Screen name="historico" />
+          <Stack.Screen name="alerta/[id]" />
 
           <Stack.Screen
             name="modal"
@@ -41,11 +38,9 @@ export default function RootLayout() {
               title: "Modal",
             }}
           />
-        </Stack>
+      </Stack>
 
-        <StatusBar style="auto" />
-
-      </NotificationProvider>
+      <StatusBar style="auto" />
 
     </ThemeProvider>
   );
