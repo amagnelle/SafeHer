@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -9,35 +10,150 @@ import {
   View,
 } from "react-native";
 
-const alertas = [
-  {
-    id: "1",
-    data: "22 de junho de 2026",
-    hora: "14:35",
-    status: "Encerrado",
-    pontos: 14,
-    duracao: "18 minutos",
-  },
-  {
-    id: "2",
-    data: "20 de junho de 2026",
-    hora: "18:12",
-    status: "Encerrado",
-    pontos: 8,
-    duracao: "5 minutos",
-  },
-  {
-    id: "3",
-    data: "18 de junho de 2026",
-    hora: "21:04",
-    status: "Ativo",
-    pontos: 22,
-    duracao: "Em andamento",
-  },
-];
+import { auth, db } from "../src/models/firebaseConfig";
+
+import {
+  collection,
+  getDocs,
+  query,
+  where
+} from "firebase/firestore";
+
+type Alerta = {
+  id: string;
+  status: string;
+  iniciadoEm: any;
+  encerradoEm: any;
+  ultimaLocalizacao: {
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+    atualizadoEm: string;
+  } | null;
+  quantidadePontos: number;
+  duracao: string;
+};
 
 export default function Historico() {
   const router = useRouter();
+
+  const [alertas, setAlertas] = useState<Alerta[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  // Escuta ativamente quando o usuário está realmente pronto e logado
+  const unsubscribe = auth.onAuthStateChanged((user) => {
+    if (user) {
+      carregarHistorico();
+    } else {
+      setLoading(false); // Desativa o loading caso não tenha usuário logado
+    }
+  });
+
+  return unsubscribe; // Limpa o listener ao desmontar a tela
+}, []);
+
+  async function carregarHistorico() {
+    try {
+      setLoading(true);
+      const user = auth.currentUser;
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      // 1. Otimização: Filtra direto no Firestore apenas os alertas do usuário logado
+      const alertasQuery = query(
+        collection(db, "alertas"),
+        where("userId", "==", user.uid)
+      );
+
+      const snapshot = await getDocs(alertasQuery);
+      
+      // Remove ou comenta esses alerts em produção, servem para debugar
+      // alert(`Documentos do usuário no Firestore: ${snapshot.size}`);
+
+      // 2. Mapeia os documentos retornados buscando as subcoleções de forma segura
+      const lista = await Promise.all(
+        snapshot.docs.map(async (docSnap) => {
+          const dados: any = docSnap.data();
+
+          // Busca a subcoleção de trajetos para cada alerta filtrado
+          const trajeto = await getDocs(
+            collection(db, "alertas", docSnap.id, "trajeto")
+          );
+
+          let duracao = "Em andamento";
+
+          if (dados.iniciadoEm) {
+            // Garante que o método toDate() existe antes de chamar
+            const inicio = typeof dados.iniciadoEm.toDate === "function" 
+              ? dados.iniciadoEm.toDate() 
+              : new Date(dados.iniciadoEm);
+
+            const fim = dados.encerradoEm
+              ? (typeof dados.encerradoEm.toDate === "function" ? dados.encerradoEm.toDate() : new Date(dados.encerradoEm))
+              : new Date();
+
+            const minutos = Math.floor(
+              (fim.getTime() - inicio.getTime()) / 60000
+            );
+
+            duracao = `${minutos} minutos`;
+          }
+
+          return {
+            id: docSnap.id,
+            ...dados,
+            quantidadePontos: trajeto.size,
+            duracao,
+          };
+        })
+      );
+
+      // Ordena os alertas para mostrar os mais recentes primeiro (opcional, mas recomendado)
+      lista.sort((a, b) => {
+        const dataA = a.iniciadoEm?.toDate ? a.iniciadoEm.toDate().getTime() : 0;
+        const dataB = b.iniciadoEm?.toDate ? b.iniciadoEm.toDate().getTime() : 0;
+        return dataB - dataA;
+      });
+
+      setAlertas(lista as Alerta[]);
+    } catch (e) {
+      console.error("Erro ao carregar histórico: ", e);
+      alert("Erro ao carregar histórico. Verifique o console.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const totalAlertas = alertas.length;
+
+  const ativos = alertas.filter(
+    (a) => a.status === "ativo"
+  ).length;
+
+  const encerrados = alertas.filter(
+    (a) => a.status === "encerrado"
+  ).length;
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#170327",
+        }}
+      >
+        <Text style={{ color: "#fff" }}>
+          Carregando histórico...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <LinearGradient
@@ -59,19 +175,19 @@ export default function Historico() {
         <View style={styles.summaryRow}>
           <View style={styles.summaryCard}>
             <Ionicons name="shield-checkmark" size={26} color="#EC4899" />
-            <Text style={styles.summaryNumber}>3</Text>
+            <Text style={styles.summaryNumber}>{totalAlertas}</Text>
             <Text style={styles.summaryLabel}>Alertas</Text>
           </View>
 
           <View style={styles.summaryCard}>
             <Ionicons name="checkmark-circle" size={26} color="#22C55E" />
-            <Text style={styles.summaryNumber}>2</Text>
+            <Text style={styles.summaryNumber}>{encerrados}</Text>
             <Text style={styles.summaryLabel}>Encerrados</Text>
           </View>
 
           <View style={styles.summaryCard}>
             <Ionicons name="radio-button-on" size={26} color="#FB7185" />
-            <Text style={styles.summaryNumber}>1</Text>
+            <Text style={styles.summaryNumber}>{ativos}</Text>
             <Text style={styles.summaryLabel}>Ativo</Text>
           </View>
         </View>
@@ -89,37 +205,68 @@ export default function Historico() {
               <Text style={styles.sosText}>SOS</Text>
             </View>
 
-            <View style={styles.alertInfo}>
-              <Text style={styles.alertDate}>
-                {alerta.data} às {alerta.hora}
-              </Text>
+        <View style={styles.alertInfo}>
+  <Text style={styles.alertDate}>
+    {alerta.iniciadoEm?.toDate().toLocaleString("pt-BR")}
+  </Text>
 
-              <View style={styles.alertRow}>
-                <Ionicons name="location-outline" size={16} color="#C084FC" />
-                <Text style={styles.alertText}>{alerta.pontos} pontos registrados</Text>
-              </View>
+  <View style={styles.alertRow}>
+    <Ionicons
+      name="location-outline"
+      size={16}
+      color="#C084FC"
+    />
+    <Text style={styles.alertText}>
+      {alerta.quantidadePontos} pontos registrados
+    </Text>
+  </View>
 
-              <View style={styles.alertRow}>
-                <Ionicons name="time-outline" size={16} color="#C084FC" />
-                <Text style={styles.alertText}>Duração: {alerta.duracao}</Text>
-              </View>
-            </View>
+  <View style={styles.alertRow}>
+    <Ionicons
+      name="time-outline"
+      size={16}
+      color="#C084FC"
+    />
+    <Text style={styles.alertText}>
+      Duração: {alerta.duracao}
+    </Text>
+  </View>
 
-            <View
-              style={[
-                styles.statusPill,
-                alerta.status === "Ativo" && styles.statusPillActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.statusText,
-                  alerta.status === "Ativo" && styles.statusTextActive,
-                ]}
-              >
-                {alerta.status}
-              </Text>
-            </View>
+  {alerta.ultimaLocalizacao && (
+    <View style={styles.alertRow}>
+      <Ionicons
+        name="navigate-outline"
+        size={16}
+        color="#C084FC"
+      />
+      <Text style={styles.alertText}>
+        {alerta.ultimaLocalizacao.latitude.toFixed(5)},
+        {" "}
+        {alerta.ultimaLocalizacao.longitude.toFixed(5)}
+      </Text>
+    </View>
+  )}
+</View>
+
+<View
+  style={[
+    styles.statusPill,
+    alerta.status === "ativo" &&
+      styles.statusPillActive,
+  ]}
+>
+  <Text
+    style={[
+      styles.statusText,
+      alerta.status === "ativo" &&
+        styles.statusTextActive,
+    ]}
+  >
+    {alerta.status === "ativo"
+      ? "Ativo"
+      : "Encerrado"}
+  </Text>
+</View>
           </TouchableOpacity>
         ))}
 
