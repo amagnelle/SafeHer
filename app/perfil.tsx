@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
-  Image,
   Modal,
   SafeAreaView,
   ScrollView,
@@ -13,7 +12,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import {
   atualizarEmail,
@@ -189,13 +188,9 @@ async function handleExcluirConta() {
           {/* CARD */}
           <View style={styles.card}>
             <View style={styles.avatarContainer}>
-              <Image
-                source={{ uri: "https://i.pravatar.cc/300?img=32" }}
-                style={styles.avatar}
-              />
-              <TouchableOpacity style={styles.cameraButton}>
-                <Feather name="camera" size={15} color="#FFF" />
-              </TouchableOpacity>
+             
+             
+              
             </View>
 
             <Text style={styles.name}>{nome || "Usuário"}</Text>
