@@ -17,7 +17,8 @@ import {
 } from "react-native";
 import {
   atualizarEmail,
-  atualizarSenha
+  atualizarSenha,
+  excluirConta
 } from "../services/editar";
 import { auth, db } from "../src/models/firebaseConfig";
 
@@ -34,7 +35,29 @@ export default function Perfil() {
   const [novaSenha, setNovaSenha] = useState("");
   const [modalEmail, setModalEmail] = useState(false);
   const [modalSenha, setModalSenha] = useState(false);
+  const [modalExcluir, setModalExcluir] = useState(false);
+async function handleExcluirConta() {
+  try {
+    await excluirConta(senhaAtual);
 
+    Alert.alert("Sucesso", "Conta excluída");
+    setModalExcluir(false);
+
+  } catch (error: any) {
+    switch (error.code) {
+      case "auth/wrong-password":
+        Alert.alert("Erro", "Senha incorreta");
+        break;
+
+      case "auth/requires-recent-login":
+        Alert.alert("Erro", "Faça login novamente");
+        break;
+
+      default:
+        Alert.alert("Erro", error.message);
+    }
+  }
+}
   async function handleAtualizarEmail() {
   // 1. Validação simples antes de enviar
   if (!novoEmail || !senhaAtual) {
@@ -235,15 +258,46 @@ export default function Perfil() {
             />
 
             <Opcao
-              icone="shield-check-outline"
-              titulo="Verificação em duas etapas"
-              descricao="Ative uma camada extra de segurança"
-              status="Inativo"
-            />
+                icone="delete-outline"
+                titulo="Excluir conta"
+                descricao="Excluir permanentemente sua conta"
+                onPress={() => setModalExcluir(true)}
+              />
           </View>
         </ScrollView>
       </SafeAreaView>
+<Modal visible={modalExcluir} transparent animationType="fade">
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Excluir conta</Text>
 
+      <Text style={{ marginBottom: 15, color: "#666" }}>
+        Esta ação é permanente e não poderá ser desfeita.
+      </Text>
+
+      <TextInput
+        placeholder="Digite sua senha"
+        value={senhaAtual}
+        onChangeText={setSenhaAtual}
+        secureTextEntry
+        style={styles.input}
+      />
+
+      <TouchableOpacity
+        style={[styles.botao, { backgroundColor: "#E53935" }]}
+        onPress={handleExcluirConta}
+      >
+        <Text style={{ color: "#FFF", fontWeight: "600" }}>
+          Excluir conta
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => setModalExcluir(false)}>
+        <Text style={styles.cancelar}>Cancelar</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
       {/* MODAIS RENDERIZADOS FORA DA SAFEAREA / SCROLLVIEW */}
       <Modal visible={modalEmail} transparent animationType="fade">
         <View style={styles.modalOverlay}>
