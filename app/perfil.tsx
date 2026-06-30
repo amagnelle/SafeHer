@@ -36,26 +36,32 @@ export default function Perfil() {
   const [modalSenha, setModalSenha] = useState(false);
   const [modalExcluir, setModalExcluir] = useState(false);
   async function handleExcluirConta() {
-    try {
-      await excluirConta(senhaAtual);
+  try {
+    await excluirConta(senhaAtual);
 
-      Alert.alert("Sucesso", "Conta excluída");
-      setModalExcluir(false);
-    } catch (error: any) {
-      switch (error.code) {
-        case "auth/wrong-password":
-          Alert.alert("Erro", "Senha incorreta");
-          break;
+    // Limpa o campo usado no modal
+    setSenhaAtual("");
 
-        case "auth/requires-recent-login":
-          Alert.alert("Erro", "Faça login novamente");
-          break;
+    // Fecha o modal de exclusão
+    setModalExcluir(false);
 
-        default:
-          Alert.alert("Erro", error.message);
-      }
+    // Redireciona para a tela de login
+    router.replace("/login");
+  } catch (error: any) {
+    switch (error.code) {
+      case "auth/wrong-password":
+        Alert.alert("Erro", "Senha incorreta");
+        break;
+
+      case "auth/requires-recent-login":
+        Alert.alert("Erro", "Faça login novamente antes de excluir sua conta");
+        break;
+
+      default:
+        Alert.alert("Erro", error.message);
     }
   }
+}
   async function handleAtualizarEmail() {
     // 1. Validação simples antes de enviar
     if (!novoEmail || !senhaAtual) {
@@ -209,26 +215,26 @@ export default function Perfil() {
                 <MaterialCommunityIcons
                   name="email-outline"
                   size={22}
-                  color="#7B2CBF"
+                  color="#C084FC"
                 />
                 <View style={styles.infoText}>
                   <Text style={styles.label}>E-mail</Text>
                   <Text style={styles.value}>{email || "Sem e-mail"}</Text>
                 </View>
               </View>
-              <Feather name="chevron-right" size={20} color="#999" />
+              <Feather name="chevron-right" size={20} color="rgba(255,255,255,0.55)" />
             </TouchableOpacity>
 
             {/* TELEFONE */}
             <TouchableOpacity style={styles.infoItem}>
               <View style={styles.infoLeft}>
-                <Feather name="phone" size={20} color="#7B2CBF" />
+                <Feather name="phone" size={20} color="#C084FC" />
                 <View style={styles.infoText}>
                   <Text style={styles.label}>Telefone</Text>
                   <Text style={styles.value}>{telefone || "Sem telefone"}</Text>
                 </View>
               </View>
-              <Feather name="chevron-right" size={20} color="#999" />
+              <Feather name="chevron-right" size={20} color="rgba(255,255,255,0.55)" />
             </TouchableOpacity>
           </View>
 
@@ -292,7 +298,7 @@ export default function Perfil() {
           </View>
         </View>
       </Modal>
-      {/* MODAIS RENDERIZADOS FORA DA SAFEAREA / SCROLLVIEW */}
+      
       <Modal visible={modalEmail} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -388,7 +394,7 @@ function Opcao({
       disabled={!onPress}
     >
       <View style={styles.optionLeft}>
-        <MaterialCommunityIcons name={icone} size={22} color="#7B2CBF" />
+        <MaterialCommunityIcons name={icone} size={22} color="#C084FC" />
         <View style={{ marginLeft: 12 }}>
           <Text style={styles.optionTitle}>{titulo}</Text>
           <Text style={styles.optionDescription}>{descricao}</Text>
@@ -397,7 +403,7 @@ function Opcao({
 
       <View style={styles.optionRight}>
         {status && <Text style={styles.status}>{status}</Text>}
-        <Feather name="chevron-right" size={20} color="#999" />
+        <Feather name="chevron-right" size={20} color="#ccc0c0" />
       </View>
     </TouchableOpacity>
   );
@@ -406,215 +412,259 @@ function Opcao({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#1A0030",
   },
+
   header: {
-    backgroundColor: "#7B2CBF",
+    backgroundColor: "#210032",
     paddingTop: 60,
     paddingHorizontal: 25,
-    paddingBottom: 120,
-    borderBottomLeftRadius: 35,
-    borderBottomRightRadius: 35,
+    paddingBottom: 70,
   },
+
   backButton: {
     position: "absolute",
     top: 60,
     left: 20,
-    zIndex: 1,
+    zIndex: 2,
   },
+
   notification: {
     position: "absolute",
     top: 60,
     right: 20,
+    zIndex: 2,
   },
+
   title: {
-    color: "#FFF",
-    fontSize: 30,
-    fontWeight: "bold",
-    marginTop: 15,
+    color: "#FFFFFF",
+    fontSize: 38,
+    fontWeight: "900",
+    marginTop: 48,
   },
+
   subtitle: {
-    color: "#E5D8FF",
-    fontSize: 14,
-    marginTop: 5,
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 16,
+    marginTop: 8,
+    lineHeight: 22,
   },
+
   card: {
-    backgroundColor: "#FFF",
-    marginHorizontal: 18,
-    marginTop: -50,
-    borderRadius: 22,
-    padding: 20,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    marginHorizontal: 22,
+    marginTop: 28,
+    borderRadius: 28,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
   },
+
   avatarContainer: {
     alignItems: "center",
-    marginTop: -65,
+    marginTop: 0,
   },
+
   avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    borderWidth: 4,
-    borderColor: "#7B2CBF",
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    borderWidth: 3,
+    borderColor: "rgba(192,132,252,0.9)",
   },
+
   cameraButton: {
     position: "absolute",
-    bottom: 5,
+    bottom: 4,
     right: 115,
-    backgroundColor: "#7B2CBF",
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    backgroundColor: "#A855F7",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#210032",
   },
+
   name: {
     textAlign: "center",
-    marginTop: 15,
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
+    marginTop: 8,
+    fontSize: 30,
+    fontWeight: "900",
+    color: "#FFFFFF",
   },
+
   memberContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 10,
-    marginBottom: 20,
+    marginTop: 8,
+    marginBottom: 22,
   },
+
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#7B2CBF",
-    marginRight: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#A855F7",
+    marginRight: 8,
   },
+
   memberText: {
-    color: "#777",
-    fontSize: 13,
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 14,
+    fontWeight: "500",
   },
+
   infoItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#FAFAFA",
-    borderRadius: 14,
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: 22,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
   },
+
   infoLeft: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
   },
+
   infoText: {
-    marginLeft: 12,
+    marginLeft: 14,
+    flex: 1,
   },
+
   label: {
-    color: "#888",
-    fontSize: 12,
+    color: "rgba(255,255,255,0.56)",
+    fontSize: 13,
+    marginBottom: 3,
   },
+
   value: {
-    color: "#333",
-    fontSize: 15,
-    fontWeight: "500",
-  },
-  sectionTitle: {
-    marginTop: 20,
-    marginHorizontal: 22,
-    marginBottom: 10,
-    color: "#666",
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "800",
   },
+
+  sectionTitle: {
+    marginTop: 28,
+    marginHorizontal: 26,
+    marginBottom: 14,
+    color: "#FFFFFF",
+    fontSize: 22,
+    fontWeight: "900",
+  },
+
   securityCard: {
-    backgroundColor: "#FFF",
-    marginHorizontal: 18,
-    marginBottom: 30,
-    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    marginHorizontal: 22,
+    marginBottom: 34,
+    borderRadius: 28,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
   },
+
   option: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 18,
+    paddingVertical: 22,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F2",
+    borderBottomColor: "rgba(255,255,255,0.10)",
   },
+
   optionLeft: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
   },
+
   optionRight: {
     flexDirection: "row",
     alignItems: "center",
   },
+
   optionTitle: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: 18,
+    fontWeight: "900",
+    color: "#FFFFFF",
   },
+
   optionDescription: {
-    fontSize: 12,
-    color: "#888",
-    marginTop: 2,
+    fontSize: 14,
+    color: "rgba(255,255,255,0.58)",
+    marginTop: 4,
   },
+
   status: {
-    color: "#E74C3C",
+    color: "#FF4D6D",
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "800",
     marginRight: 8,
   },
+
   modalOverlay: {
     width: width,
     height: height,
     position: "absolute",
     top: 0,
     left: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(5,0,12,0.78)",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 22,
   },
+
   modalContent: {
-    width: "85%",
-    backgroundColor: "#FFF",
-    borderRadius: 20,
-    padding: 20,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: "#2A0A3D",
+    borderRadius: 28,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
   },
+
   modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: "#333",
+    fontSize: 24,
+    fontWeight: "900",
+    marginBottom: 16,
+    color: "#FFFFFF",
   },
+
   input: {
     borderWidth: 1,
-    borderColor: "#DDD",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 10,
-    color: "#333",
+    borderColor: "rgba(255, 255, 255, 0.78)",
+    backgroundColor: "rgba(255,255,255,0.78)",
+    borderRadius: 18,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    color: "#FFFFFF",
+    fontSize: 15,
   },
+
   botao: {
-    backgroundColor: "#7B2CBF",
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: "#A855F7",
+    paddingVertical: 16,
+    borderRadius: 18,
     alignItems: "center",
-    marginTop: 5,
+    marginTop: 6,
   },
+
   cancelar: {
     textAlign: "center",
-    marginTop: 15,
-    color: "#666",
-    fontWeight: "500",
+    marginTop: 16,
+    color: "#C084FC",
+    fontWeight: "900",
   },
 });

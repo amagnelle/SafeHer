@@ -8,7 +8,10 @@ import {
   Animated,
   Image,
   ImageBackground,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -19,22 +22,28 @@ import {
 export default function App() {
   const router = useRouter();
 
+  // Estados dos campos e controle da tela
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Estados do modal de aviso
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
+  // Animação de entrada da tela
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(40)).current;
 
   useEffect(() => {
+    // Se já estiver logada, envia direto para a tela principal
     if (auth.currentUser) {
-      router.replace("/perfil");
+      router.replace("/botao");
     }
   }, []);
 
   useEffect(() => {
+    // Animação suave ao abrir a tela
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -55,6 +64,7 @@ export default function App() {
   };
 
   const handleLogin = async () => {
+    // Validações simples antes de tentar logar
     if (!email || !senha) {
       showModal("Preencha todos os campos");
       return;
@@ -77,7 +87,7 @@ export default function App() {
 
       console.log("Logado:", user.email);
 
-      router.replace("/perfil");
+      router.replace("/botao");
     } catch (error: any) {
       showModal(error?.message ?? "Erro ao fazer login");
     } finally {
@@ -87,6 +97,7 @@ export default function App() {
 
   return (
     <>
+      {/* Modal usado para mensagens de validação e erro */}
       <Modal
         animationType="fade"
         transparent
@@ -113,80 +124,93 @@ export default function App() {
         style={styles.container}
         resizeMode="cover"
       >
-        <View style={styles.overlay}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
+        {/* Faz a tela se ajustar quando o teclado aparece */}
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          {/* Permite rolar a tela caso o teclado cubra parte do formulário */}
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            <Text style={styles.backText}>‹</Text>
-          </TouchableOpacity>
+            <View style={styles.overlay}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+              >
+                <Text style={styles.backText}>‹</Text>
+              </TouchableOpacity>
 
-          <Animated.View
-            style={[
-              styles.loginBox,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY }],
-              },
-            ]}
-          >
-            <Image
-              source={require("@/assets/images/icon.png")}
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
+              <Animated.View
+                style={[
+                  styles.loginBox,
+                  {
+                    opacity: fadeAnim,
+                    transform: [{ translateY }],
+                  },
+                ]}
+              >
+                <Image
+                  source={require("@/assets/images/icon.png")}
+                  style={styles.logoImage}
+                  resizeMode="contain"
+                />
 
-            <Text style={styles.title}>Bem-vinda de volta!</Text>
+                <Text style={styles.title}>Bem-vinda de volta!</Text>
 
-            <Text style={styles.subtitle}>
-              Entre para acessar sua rede de proteção.
-            </Text>
+                <Text style={styles.subtitle}>
+                  Entre para acessar sua rede de proteção.
+                </Text>
 
-            <View style={styles.formCard}>
-              <TextInput
-                placeholder="E-mail"
-                placeholderTextColor="rgba(255,255,255,0.55)"
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
+                <View style={styles.formCard}>
+                  <TextInput
+                    placeholder="E-mail"
+                    placeholderTextColor="rgba(255,255,255,0.55)"
+                    style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
 
-              <View style={styles.inputDivider} />
+                  <View style={styles.inputDivider} />
 
-              <TextInput
-                placeholder="Senha"
-                placeholderTextColor="rgba(255,255,255,0.55)"
-                style={styles.input}
-                secureTextEntry
-                value={senha}
-                onChangeText={setSenha}
-              />
+                  <TextInput
+                    placeholder="Senha"
+                    placeholderTextColor="rgba(255,255,255,0.55)"
+                    style={styles.input}
+                    secureTextEntry
+                    value={senha}
+                    onChangeText={setSenha}
+                  />
+                </View>
+
+                <TouchableOpacity>
+                  <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.button, loading && styles.buttonDisabled]}
+                  onPress={handleLogin}
+                  disabled={loading}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? "Entrando..." : "Entrar"}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => router.push("/cadastro")}>
+                  <Text style={styles.link}>
+                    Ainda não possui conta?{" "}
+                    <Text style={styles.linkHighlight}>Criar conta</Text>
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
             </View>
-
-            <TouchableOpacity>
-              <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={handleLogin}
-              disabled={loading}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? "Entrando..." : "Entrar"}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => router.push("/cadastro")}>
-              <Text style={styles.link}>
-                Ainda não possui conta?{" "}
-                <Text style={styles.linkHighlight}>Criar conta</Text>
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </ImageBackground>
     </>
   );
@@ -197,8 +221,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  keyboardView: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+  },
+
   overlay: {
     flex: 1,
+    minHeight: "100%",
     backgroundColor: "rgba(8, 0, 24, 0.54)",
     paddingHorizontal: 28,
     justifyContent: "center",
@@ -222,6 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.10)",
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 2,
   },
 
   backText: {
