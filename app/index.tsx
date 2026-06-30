@@ -1,6 +1,11 @@
+import PermissionIntroModal from "@/components/PermissionIntroModal";
+import * as Location from "expo-location";
+import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ImageBackground,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,12 +15,34 @@ import {
 export default function Welcome() {
   const router = useRouter();
 
+  const [permissionModalVisible, setPermissionModalVisible] = useState(false);
+
+  useEffect(() => {
+    setPermissionModalVisible(true);
+  }, []);
+
+  async function solicitarPermissoes() {
+    setPermissionModalVisible(false);
+
+    await Location.requestForegroundPermissionsAsync();
+
+    if (Platform.OS !== "web") {
+      await Notifications.requestPermissionsAsync();
+    }
+  }
+
   return (
     <ImageBackground
       source={require("@/assets/images/fundo.png")}
       style={styles.container}
       resizeMode="cover"
     >
+      <PermissionIntroModal
+        visible={permissionModalVisible}
+        onContinue={solicitarPermissoes}
+        onClose={() => setPermissionModalVisible(false)}
+      />
+
       <View style={styles.overlay}>
         <View style={styles.content}>
           <Text style={styles.brand}>SafeHer</Text>

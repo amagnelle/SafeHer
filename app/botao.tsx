@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { escutarNotificacoes, Notificacao } from "@/services/notification";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -208,7 +209,7 @@ export default function Home() {
             style={styles.card}
             onPress={() => router.push("/contatos")}
           >
-            <Text style={styles.cardEmoji}>👥</Text>
+            <Ionicons name="people" size={28} color="#A855F7" />
             <Text style={styles.cardTitle}>Guardiões</Text>
             <Text style={styles.cardLink}>Configurar</Text>
           </TouchableOpacity>
@@ -217,13 +218,16 @@ export default function Home() {
             style={styles.card}
             onPress={() => router.push("/notificacoes")}
           >
-            <Text style={styles.cardEmoji}>🔔</Text>
+            <Ionicons name="notifications" size={28} color="#A855F7" />
             <Text style={styles.cardTitle}>Alertas</Text>
             <Text style={styles.cardLink}>Ver avisos</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card} onPress={() => router.push("/")}>
-            <Text style={styles.cardEmoji}>📍</Text>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => router.push("/historico")}
+          >
+            <Ionicons name="location" size={28} color="#A855F7" />
             <Text style={styles.cardTitle}>Trajetos</Text>
             <Text style={styles.cardLink}>Histórico</Text>
           </TouchableOpacity>

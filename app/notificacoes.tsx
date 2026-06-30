@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import {
   escutarNotificacoes,
   marcarNotificacaoComoLida,
@@ -54,7 +55,7 @@ export default function Notificacoes() {
       </TouchableOpacity>
 
       <View style={styles.header}>
-        <Text style={styles.icon}>🔔</Text>
+        <Ionicons name="notifications" size={42} color="#A855F7" />
 
         <Text style={styles.title}>
           Notificações{" "}
@@ -73,7 +74,7 @@ export default function Notificacoes() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>🔔</Text>
+            <Ionicons name="notifications-outline" size={42} color="#A855F7" />
             <Text style={styles.emptyTitle}>Nenhuma notificação</Text>
             <Text style={styles.emptyText}>
               Quando algum guardião enviar um alerta, ele aparecerá aqui.

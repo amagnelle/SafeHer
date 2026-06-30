@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { db } from "@/src/models/firebaseConfig";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -39,23 +40,18 @@ export default function Alerta() {
 
     const alertaRef = doc(db, "alertas", String(id));
 
-    const unsubscribeAlerta = onSnapshot(alertaRef, async (snapshot) => {
+    const unsubscribeAlerta = onSnapshot(alertaRef, (snapshot) => {
       if (snapshot.exists()) {
         const dados = snapshot.data();
 
-        console.log("Alerta recebido:", dados);
-
         setAlerta(dados);
-
-        if (dados.userId) {
-          setNomeUsuario(dados.nomeUsuario || "Usuária SafeHer");
-        }
+        setNomeUsuario(dados.nomeUsuario || "Usuária SafeHer");
       }
     });
 
     const trajetoRef = query(
       collection(db, "alertas", String(id), "trajeto"),
-      orderBy("criadoEm", "asc"),
+      orderBy("criadoEm", "asc")
     );
 
     const unsubscribeTrajeto = onSnapshot(trajetoRef, (snapshot) => {
@@ -91,7 +87,6 @@ export default function Alerta() {
 
     const agora = Date.now();
 
-    // Evita animar o mapa a cada atualização do GPS
     if (agora - ultimaAnimacaoRef.current < 3500) return;
 
     ultimaAnimacaoRef.current = agora;
@@ -103,7 +98,7 @@ export default function Alerta() {
         latitudeDelta: 0.003,
         longitudeDelta: 0.003,
       },
-      1200,
+      1200
     );
   }, [localizacaoAtual]);
 
@@ -122,7 +117,7 @@ export default function Alerta() {
         style={styles.container}
       >
         <View style={styles.loadingBox}>
-          <Text style={styles.loadingIcon}>📍</Text>
+          <Ionicons name="location" size={48} color="#FFFFFF" />
           <Text style={styles.loading}>Carregando alerta...</Text>
           <Text style={styles.loadingText}>
             Aguardando a primeira localização em tempo real.
