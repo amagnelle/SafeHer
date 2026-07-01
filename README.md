@@ -1,307 +1,267 @@
 # SafeHer
 
-Aplicativo mobile de segurança pessoal desenvolvido em React Native com Expo e Firebase.
+Aplicativo mobile desenvolvido em React Native com Expo e Firebase voltado para o acionamento rápido de contatos de confiança em situações de emergência.
 
-O SafeHer foi criado para permitir que usuários acionem rapidamente contatos de confiança em situações de risco, compartilhando sua localização em tempo real e registrando seu trajeto durante uma emergência.
-
----
-
-## Sobre o Projeto
-
-O SafeHer nasceu da necessidade de fornecer uma forma rápida e eficiente de pedir ajuda em situações de vulnerabilidade.
-
-Ao ativar o modo SOS, o aplicativo:
-
-* Notifica contatos previamente cadastrados;
-* Compartilha a localização em tempo real;
-* Registra o trajeto percorrido durante o alerta;
-* Permite que guardiões acompanhem a situação imediatamente.
+O projeto permite autenticação de usuários, gerenciamento de contatos, envio de alertas SOS, compartilhamento da localização em tempo real, registro do trajeto percorrido e recebimento de notificações dentro do aplicativo.
 
 ---
 
-## Objetivo
+# Tecnologias Utilizadas
 
-* Enviar alertas de emergência com rapidez;
-* Compartilhar localização em tempo real;
-* Facilitar o contato com pessoas de confiança;
-* Aumentar a sensação de segurança dos usuários;
-* Reduzir o tempo de resposta em situações críticas.
-
----
-
-## Problema
-
-Milhões de pessoas enfrentam diariamente situações de risco, como:
-
-* Assédio
-* Perseguição
-* Violência
-* Insegurança em locais públicos
-* Deslocamentos noturnos
-
-Em momentos críticos, cada segundo importa.
-
-O SafeHer foi desenvolvido para tornar o pedido de ajuda mais rápido, simples e eficiente.
+- React Native
+- Expo
+- TypeScript
+- Expo Router
+- Firebase Authentication
+- Cloud Firestore
+- Google Maps (react-native-maps)
+- Expo Location
+- Expo Notifications
 
 ---
 
-## Público-Alvo
+# Funcionalidades
 
-* Mulheres
-* Estudantes
-* Pessoas que caminham sozinhas
-* Trabalhadores em deslocamentos noturnos
-* Qualquer pessoa que deseje aumentar sua segurança pessoal
+## Autenticação
 
----
-
-## Funcionalidades
-
-### Autenticação
-
-* Cadastro de usuários
-* Login seguro com Firebase Authentication
-* Gerenciamento de sessão
-
-### Sistema SOS
-
-* Ativação rápida do alerta SOS
-* Compartilhamento de localização em tempo real
-* Registro automático do trajeto
-* Encerramento manual do alerta
-
-### Contatos de Confiança
-
-* Cadastro de guardiões
-* Edição de contatos
-* Exclusão de contatos
-* Validação de usuários cadastrados
-
-### Notificações
-
-* Recebimento de alertas SOS
-* Histórico de notificações
-* Marcação de notificações como lidas
-* Marcar todas as notificações como lidas
-
-### Histórico
-
-* Registro de alertas enviados
-* Registro de localização durante emergências
-* Armazenamento de informações relevantes para acompanhamento
+- Cadastro de usuários com e-mail e senha
+- Login utilizando Firebase Authentication
+- Verificação de e-mail após o cadastro
+- Logout da conta
+- Persistência da sessão do usuário
 
 ---
 
-## Fluxo do Aplicativo
+## Cadastro de Usuário
 
-1. Usuário realiza login.
-2. Usuário cadastra seus guardiões.
-3. Em caso de emergência, ativa o botão SOS.
-4. O aplicativo cria um alerta.
-5. Os guardiões recebem uma notificação.
-6. A localização passa a ser compartilhada em tempo real.
-7. O trajeto é registrado no banco de dados.
-8. O alerta pode ser encerrado quando a situação estiver segura.
+Durante o cadastro são armazenados:
 
----
+- Nome
+- E-mail
+- CPF
+- Telefone
 
-## Tecnologias Utilizadas
+O sistema realiza validação de:
 
-### Mobile
+- Nome
+- E-mail
+- CPF
+- Telefone
+- Senha
 
-* React Native
-* Expo
-* Expo Router
-* TypeScript
-
-### Backend e Serviços
-
-* Firebase Authentication
-* Cloud Firestore
-* Firebase Cloud Messaging (em implementação)
-
-### Localização
-
-* Expo Location
-* React Native Maps
-
-### Interface
-
-* Expo Linear Gradient
-* React Native
+Antes de concluir o cadastro.
 
 ---
 
-## Arquitetura
+## Tela Inicial
 
-```text
-React Native (Expo)
-        │
-        ▼
-Firebase Authentication
-        │
-        ▼
-Cloud Firestore
-        │
- ┌──────┴──────┐
- ▼             ▼
-Alertas    Notificações
- ▼             ▼
-Localização em Tempo Real
+Ao abrir o aplicativo o usuário encontra:
+
+- Apresentação do SafeHer
+- Solicitação das permissões necessárias
+- Acesso para Login
+- Acesso para Cadastro
+
+As permissões solicitadas são:
+
+- Localização
+- Notificações
+
+---
+
+## Botão SOS
+
+O aplicativo possui um botão principal para acionamento do alerta de emergência.
+
+Ao iniciar um SOS:
+
+- Um alerta é criado no Firestore;
+- A localização atual é obtida;
+- O trajeto começa a ser registrado;
+- Os contatos cadastrados recebem uma notificação;
+- O mapa passa a acompanhar o deslocamento do usuário.
+
+Ao encerrar o SOS:
+
+- O alerta é finalizado;
+- O registro do trajeto é encerrado.
+
+---
+
+## Localização
+
+O aplicativo utiliza a localização do dispositivo para:
+
+- Exibir a posição atual;
+- Registrar o deslocamento durante um alerta;
+- Desenhar o trajeto percorrido no mapa.
+
+O mapa é implementado utilizando Google Maps através da biblioteca react-native-maps.
+
+---
+
+## Contatos de Confiança
+
+O usuário pode:
+
+- Adicionar contatos
+- Editar contatos
+- Excluir contatos
+
+Os contatos ficam armazenados no Firebase Firestore.
+
+---
+
+## Histórico
+
+O aplicativo possui uma tela destinada ao histórico dos alertas registrados pelo usuário.
+
+---
+
+## Notificações
+
+O projeto possui suporte às notificações utilizando Expo Notifications.
+
+Entre os recursos implementados estão:
+
+- Registro do Push Token
+- Recebimento de notificações
+- Exibição das notificações dentro do aplicativo
+
+---
+
+## Perfil
+
+A tela de perfil permite visualizar e atualizar informações da conta.
+
+Também estão disponíveis opções relacionadas à autenticação do usuário.
+
+---
+
+# Estrutura do Projeto
+
+```
+app/
+│
+├── index.tsx
+├── login.tsx
+├── cadastro.tsx
+├── botao.tsx
+├── contatos.tsx
+├── notificacoes.tsx
+├── historico.tsx
+├── perfil.tsx
+└── alerta/
+    └── [id].tsx
+
+components/
+├── SOSmap.tsx
+├── PermissionIntroModal.tsx
+└── ...
+
+services/
+├── contatos.ts
+├── editar.ts
+├── notification.ts
+├── perfil.ts
+├── pushNotifications.ts
+├── regex.ts
+└── sosService.ts
+
+src/
+└── models/
+    ├── firebase.ts
+    └── firebaseConfig.ts
 ```
 
-## Estrutura do Banco de Dados
+---
 
-### users
+# Firebase
 
-```json
-{
-  "nome": "string",
-  "email": "string",
-  "telefone": "string",
-  "expoPushToken": "string"
-}
-```
+O projeto utiliza o Firebase para:
 
-### contatos
+- Authentication
+- Cloud Firestore
 
-```json
-{
-  "nome": "string",
-  "telefone": "string",
-  "contatoUid": "string"
-}
-```
+Os dados armazenados incluem:
 
-### notificacoes
+## users
 
-```json
-{
-  "titulo": "string",
-  "mensagem": "string",
-  "alertaId": "string",
-  "remetenteUid": "string",
-  "remetenteNome": "string",
-  "lida": false,
-  "criadaEm": "timestamp"
-}
-```
+Informações do usuário autenticado.
 
-### alertas
+Exemplo:
 
-```json
-{
-  "userId": "string",
-  "status": "ativo",
-  "iniciadoEm": "timestamp",
-  "encerradoEm": null,
-  "ultimaLocalizacao": {}
-}
-```
+- Nome
+- E-mail
+- CPF
+- Telefone
+- Data de criação
+- Status da verificação de e-mail
 
-### alertas/{alertaId}/trajeto
+## telefones
 
-```json
-{
-  "latitude": "number",
-  "longitude": "number",
-  "accuracy": "number",
-  "criadoEm": "timestamp"
-}
-```
+Relaciona números de telefone aos respectivos usuários.
 
-## Diferenciais
+## alertas
 
-* Compartilhamento contínuo da localização
-* Registro completo do trajeto durante o alerta
-* Notificações em tempo real
-* Integração com Firebase
-* Arquitetura escalável
-* Interface otimizada para situações de emergência
-* Foco em segurança preventiva
+Armazena os alertas SOS iniciados pelos usuários.
 
 ---
 
-## Roadmap
+# Bibliotecas Principais
 
-### Concluído
-
-* Cadastro de usuários
-* Login
-* Sistema SOS
-* Compartilhamento de localização
-* Cadastro de guardiões
-* Notificações em tempo real
-* Histórico de notificações
-* Registro de trajetos
-
-### Em desenvolvimento
-
-* Push Notifications nativas
-* Histórico completo de alertas
-* Painel administrativo
-* Compartilhamento externo de alertas
-* Mapa de áreas de risco
+- expo-router
+- firebase
+- react-native-maps
+- expo-location
+- expo-notifications
+- expo-linear-gradient
+- react-native-gesture-handler
+- react-native-reanimated
 
 ---
 
-## Status do Projeto
+# Interface
 
-🚧 Em desenvolvimento
+O aplicativo possui telas para:
 
-Projeto acadêmico desenvolvido para estudo de tecnologias mobile, geolocalização e sistemas de segurança pessoal.
+- Apresentação
+- Login
+- Cadastro
+- Botão SOS
+- Contatos
+- Histórico
+- Notificações
+- Perfil
+- Visualização de Alertas
 
 ---
 
-## Como Executar o Projeto
+# Execução
 
-### Clonar o repositório
-
-```bash
-git clone https://github.com/seu-usuario/safeher.git
-```
-
-### Entrar na pasta
-
-```bash
-cd safeher
-```
-
-### Instalar dependências
+## Instalar dependências
 
 ```bash
 npm install
 ```
 
-### Iniciar o projeto
+## Executar
 
 ```bash
 npx expo start
 ```
 
----
+ou
 
-## Configuração do Firebase
-
-Crie um projeto no Firebase e habilite:
-
-* Authentication
-* Cloud Firestore
-* Cloud Messaging (opcional)
-
-Configure suas credenciais:
-
-```javascript
-const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_BUCKET",
-  messagingSenderId: "SEU_ID",
-  appId: "SEU_APP_ID",
-};
+```bash
+npm start
 ```
 
 ---
 
-Projeto SafeHer — Tecnologia aplicada à segurança pessoal.
+# Desenvolvido com
+
+- React Native
+- Expo
+- Firebase
+- TypeScript
