@@ -6,6 +6,9 @@ O projeto permite autenticação de usuários, gerenciamento de contatos, envio 
 
 ---
 
+## 🎥 Demonstração
+
+[▶️ Assistir à demonstração do SafeHer](https://youtu.be/PJJFo5OTOtc?is=opnf_1W4XTdiMVfJ)
 # Tecnologias Utilizadas
 
 - React Native
